@@ -1,13 +1,19 @@
-// global variables
-var inputFileSet  = false;
-var inputFile     = null;
-var resultContent = ''
-var resultHeader1 = '<html>\n\n<head>\n\n<meta charset="utf-8">\n'
-var resultHeader2 = '<title> Result </title>\n'
-var resultHeader3 = '<link type="text/css" rel="stylesheet" href="./CheckLyrics.css">\n'
-var resultHeader4 = '</head>\n'
-var resultHeader5 = '<body>\n\n<h1> Result </h1>\n'
-var resultFooter  = '\n</body>\n\n</html>\n\n'
+// Global Variables
+
+var inputFileSet = false;
+var inputFile    = null;
+//
+const resultButton = document.getElementById("viewResult");
+//
+var resultContent = '';
+var resultHeader1 = '<html>\n\n<head>\n\n<meta charset="utf-8">\n';
+var resultHeader2 = '<title> Result </title>\n';
+var resultHeader3 = '<link type="text/css" rel="stylesheet" href="./CheckLyrics.css">\n';
+var resultHeader4 = '</head>\n';
+var resultHeader5 = '<body>\n\n<h1> Result </h1>\n';
+var resultFooter  = '\n</body>\n\n</html>\n\n';
+
+var LineContentList = new Array(200);
 
 
 function SaveFilePath(input)
@@ -37,15 +43,30 @@ function ProcessInputLine(idx, curLine)
     //
     if ((idx % 5) == 0)
     {
-        // resultContent += ('<p style="font-family: monospace;">' + outStr + '\n');
-        resultContent += ('<p class="testResult">' + outStr + '\n');
+        if (curLine.trim() == '')
+        {
+            outContent = '(empty line)';
+        }
+        else
+        {
+            lineContent = curLine.split(/\s+/);
+            if (lineContent.length != 4)
+            {
+                outContent = 'ERROR: line ' + idx + ' does not have 4 entires'
+            }
+            else
+            {
+                outContent = lineContent.toString();
+                LineContentList[idx] = outContent;
+            }
+        }
+        resultContent += ('<p class="testResult"> Line' + idx + ' : ' + outContent + '\n');
     }
 }
 
 
 function WriteResult()
 {
-    alert('WriteResult() called');
     console.log('WriteResult() called');
     resultWin = window.open();
     resultWin.document.write(resultHeader1);
@@ -55,7 +76,8 @@ function WriteResult()
     resultWin.document.write(resultHeader5);
     resultWin.document.write(resultContent);
     resultWin.document.write(resultFooter);
-    alert('WriteResult() finished');
+    console.log('WriteResult() end');
+    resultButton.disabled = true;
 }
 
 
@@ -68,7 +90,6 @@ function Process_CheckLyrics ()
     minNoteDur = document.getElementById("minNoteDur").value;
     outStr3  = 'Min note duration = ' + minNoteDur;
     console.log(outStr3);
-    alert('Check parameters 1 & 3');
     if (inputFileSet == true)
     {
         console.log(`File name: ${inputFile.name}`);
@@ -76,6 +97,7 @@ function Process_CheckLyrics ()
         myReader.readAsText(inputFile);
 
         myReader.onload = function() {
+            resultContent    = ''
             var contentAll   = myReader.result;
             var contentLines = contentAll.split(/\r\n/);
             outStr = 'Number of lines in input file = ' + contentLines.length;
@@ -85,7 +107,9 @@ function Process_CheckLyrics ()
                 oneLine = contentLines[i];
                 ProcessInputLine(i, oneLine);
             }
-            WriteResult();
+            resultButton.disabled = false;
+            // WriteResult();
+            alert('Process_CheckLyrics() success');
         };
 
         myReader.onerror = function() {
@@ -100,8 +124,15 @@ function Process_CheckLyrics ()
     {
         alert('No input file specified')
     }
-    
-    console.log('Process_CheckLyrics() end')
 }
 
-console.log('CheckLyrics.js V3 loaded')
+const myForm = document.querySelector('#inputForm');
+//
+myForm.addEventListener('submit', function(event){
+    event.preventDefault();
+    Process_CheckLyrics();
+    // console.log('password field is ' + userPwd);
+    // currentHref = window.location.href;
+})
+
+console.log('CheckLyrics.js loaded')

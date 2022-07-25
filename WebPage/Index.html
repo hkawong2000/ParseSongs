@@ -12,8 +12,6 @@
 
 </style>
 
-<script src="CheckLyrics.js"> </script>
-
 </head>
 
 <body>
@@ -53,8 +51,16 @@ HALF_BEAT     = chr(0xBD)
   <br><br>
 
   <label></label>  
-  <input type="submit" onClick="Process_CheckLyrics()" value="Start">    
+  <!-- <input type="submit" onClick="Process_CheckLyrics()" value="Start"> -->
+  <input type="submit" value="Start">
+  <br><br>
+
+  <label></label>  
+  <button type="button" id="viewResult" onClick="WriteResult()" disabled> View Result </button>
+  
 </form>
+
+<script src="CheckLyrics.js"> </script>
 
 </body>
 
