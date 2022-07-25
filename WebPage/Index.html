@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<head>
+
+<meta charset="utf-8">
+
+<title> Test program </title>
+
+<link type="text/css" rel="stylesheet" href="./CheckLyrics.css">
+
+<style>
+
+</style>
+
+<script src="CheckLyrics.js"> </script>
+
+</head>
+
+<body>
+
+<h1> Check Lyrics </h1>
+
+<!--
+QUARTER_BEAT  = chr(0xBC)
+ONETHIRD_BEAT = chr(0x2153) 
+HALF_BEAT     = chr(0xBD)
+-->
+
+<form id="inputForm">
+  <label for="songName">Name of song</label>
+  <input type="text" id="songName" value="迷路找朋友">
+  <br><br>
+  
+  <label for="beatsPerBar">Beats per bar</label>
+  <input type="text" id="beatsPerBar"   value="4">
+  <br><br>
+  
+  <label for="minNoteDur">Min note duration</label>
+  <select id="minNoteDur" name="minNoteDur">
+    <option value="one">1</option>
+    <option value="half">&#xBC;</option>
+    <option value="third">&#x2153;</option>
+    <option value="quarter">&#xBD;</option>
+  </select>
+  <br><br>
+  
+  <label for="beatsPerBar">Beats per bar</label>
+  <input type="text" id="beatsPerBar"   value="2" readonly>
+  <br><br>
+  
+  <label for="myfile">Select input file</label>
+  <input type="file" id="inputFile" onchange="SaveFilePath(this)" name="inputFile">
+  <br><br>
+
+  <label></label>  
+  <input type="submit" onClick="Process_CheckLyrics()" value="Start">    
+</form>
+
+</body>
+
+</html>
