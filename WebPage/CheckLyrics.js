@@ -1,9 +1,17 @@
 // Global Variables
 
-var inputFileSet   = false;
+// Parameters from input form
+var SongName;
+var BeatsPerBar;
+var MinNoteDur;
+var BarsPerLine
+
+// Input and output files
 var inputFile      = null;
+var inputFileSet   = false;
 var outputFileName = null;
-//
+
+// Buttons
 const resultButton = document.getElementById("viewResult");
 
 // Result texts
@@ -22,6 +30,7 @@ var resFooter = '\n</body>\n\n</html>\n\n';
 // For storing contents of lines
 var LineContentList = new Array(200);
 
+// =====================================================================
 
 function SaveFilePath(input)
 {
@@ -51,26 +60,32 @@ function ProcessInputLine(idx, curLine)
     outStr = 'Line ' + idxStr + ' : ' + curLine;
     console.log(outStr);
     //
-    if ((idx % 5) == 0)
+    if (curLine.trim() == '')
     {
-        if (curLine.trim() == '')
+        outContent = '(empty line)';
+    }
+    else if (curLine[0] == '#')
+    {
+        outContent = '(comment line)';
+    }
+    else
+    {
+        lineContent = curLine.split(/\s+/);
+        if (lineContent.length != 4)
         {
-            outContent = '(empty line)';
+            outContent = 'ERROR: line ' + idx + ' does not have 4 entires'
         }
         else
         {
-            lineContent = curLine.split(/\s+/);
-            if (lineContent.length != 4)
-            {
-                outContent = 'ERROR: line ' + idx + ' does not have 4 entires'
-            }
-            else
-            {
-                outContent = lineContent.toString();
-                LineContentList[idx] = outContent;
-            }
+            outContent = lineContent.toString();
+            LineContentList[idx] = outContent;
         }
-        resBody += ('<p class="testResult"> Line' + idx + ' : ' + outContent + '\n');
+    }
+    //
+    // Testing code
+    if ((idx % 5) == 0)
+    {
+        resBody += ('<p class="testResult"> Line ' + idxStr + ' : ' + outContent + '\n');
     }
 }
 
@@ -84,9 +99,11 @@ function WriteResult()
     resultWin = window.open();
     
     // Result page header
+    resHdr2   = '<title> ' + SongName + ' </title>\n\n'; 
     resHdrAll = resHdr1 + resHdr2 + resHdr3 + resHdr4;
     resultWin.document.write(resHdrAll);
     // Result page body
+    resBody2 = '<h1> ' + SongName + ' </h1>\n';  
     resBodyAll = resBody1 + resBody2 + resBody;
     resultWin.document.write(resBodyAll);
     
@@ -120,12 +137,22 @@ function Process_CheckLyrics ()
     var         oneLine;
 
     // alert("Process_CheckLyrics() called");
-    songName = document.getElementById("songName").value;
-    outStr1  = 'Song name = ' + songName;
+    
+    // Get parameters from input form
+    SongName = document.getElementById("songName").value;
+    outStr1  = 'Song name = ' + SongName;
     console.log(outStr1);
-    minNoteDur = document.getElementById("minNoteDur").value;
-    outStr3  = 'Min note duration = ' + minNoteDur;
+    BeatsPerBar = document.getElementById("beatsPerBar").value;
+    outStr2  = 'Beats per bar = ' + BeatsPerBar;
+    console.log(outStr2);
+    MinNoteDur = document.getElementById("minNoteDur").value;
+    outStr3  = 'Min note duration = ' + MinNoteDur;
     console.log(outStr3);
+    BarsPerLine = document.getElementById("barsPerLine").value;
+    outStr4  = 'Bars per Line = ' + BarsPerLine;
+    console.log(outStr4);    
+    
+    // Check input file
     if (inputFileSet == true)
     {
         console.log(`File name: ${inputFile.name}`);
@@ -142,11 +169,12 @@ function Process_CheckLyrics ()
             for (let i = 0; i < contentLines.length; i++)
             {
                 oneLine = contentLines[i];
-                ProcessInputLine(i, oneLine);
+                ProcessInputLine(i+1, oneLine);
             }
             resultButton.disabled = false;
             // WriteResult();
             alert('Process_CheckLyrics() success');
+            myReader = null;
         };
 
         myReader.onerror = function() {
