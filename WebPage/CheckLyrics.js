@@ -4,7 +4,7 @@
 var SongName;
 var BeatsPerBar;
 var MinNoteDur;
-var BarsPerLine
+var BarsPerLine;
 
 // Input and output files
 var inputFile      = null;
@@ -14,18 +14,29 @@ var outputFileName = null;
 // Buttons
 const resultButton = document.getElementById("viewResult");
 
+let StyleArray = [
+    '<style>',
+    '\n  table\n  {\n    table-layout: fixed;\n    border: 1px solid black;\n    border-collapse: collapse;\n  }',
+    '\n  td\n  {\n    border: 1px solid black;\n  }',
+    '\n  label\n  {\n    display: inline-block;\n    width: 150px;\n  }',
+    '\n  input\n  {\n    display: inline-block;\n    width: 250px;\n  }',
+    '\n  select\n  {\n    display: inline-block;\n    width: 250px;\n  }',
+    '\n  .testResult\n  {\n    font-family: monospace;\n  }',
+    '\n</style>\n\n',
+]
+
 // Result texts
 // - header
 var resHdr1 = '<html>\n\n<head>\n\n<meta charset="utf-8">\n\n';                         // head-begin and charset
 var resHdr2 = '';                                                                       // page title (to be generated)
-var resHdr3 = '<link type="text/css" rel="stylesheet" href="./CheckLyrics.css">\n\n';   // style sheet
+var resHdr3 = '';                                                                       // style sheet (to be generated from StyleArray)
 var resHdr4 = '</head>\n\n';                                                            // head-end
 // - body
 var resBody1 = '<body>\n\n'     // body-begin
-var resBody2 = '';              // <h1> (to be generated) body-header                                                   
+var resBody2 = '';              // <h1> (to be generated)                                                 
 var resBody  = '';
 // - footer
-var resFooter = '\n</body>\n\n</html>\n\n';
+var resFooter = '</body>\n\n</html>\n\n';
 
 // For storing contents of lines
 var LineContentList = new Array(0);
@@ -33,6 +44,9 @@ var ContentCnt      = 0
 
 // For storing HTML body (table content mainly)
 var BodyLines = new Array(0);
+
+// Subdivisions per beat (for column width)
+var SubDivPerBeat  = 1;
 var CellWidthNum   = 0;         // integer, as multiples of 0.1%
 var HeaderWidthNum = 0;         // integer, as multiples of 0.1%
 
@@ -77,8 +91,6 @@ function ProcessInputLine(idx, curLine)
         idxStr = '' + idx;
     }
     //
-    //x outStr = 'Line ' + idxStr + ' : ' + curLine;
-    //
     if (curLine.trim() == '')
     {
         outContent = '(empty line)';
@@ -114,7 +126,6 @@ function ProcessInputLine(idx, curLine)
             outContent = lineContent.toString();
             //
             noteLength = lineContent[3];
-            //x console.log('noteLength = ' + noteLength + ' on line ' + idxStr);
             if (noteLength.includes('H'))
             {
                 if ((SubDivPerBeat % 2) != 0)
@@ -149,12 +160,6 @@ function ProcessInputLine(idx, curLine)
             }
         }
     }
-    //
-    // Testing code
-    if ((idx % 5) == 0)
-    {
-        resBody += ('<p class="testResult"> Line ' + idxStr + ' : ' + outContent + '\n');
-    }
 }
 
 
@@ -166,6 +171,7 @@ function WriteResult()
     // Outputs
     //     (none)
 {
+    var     i;
     var     outputText;
     var     resHdrAll, resBodyAll;
     
@@ -173,7 +179,12 @@ function WriteResult()
     resultWin = window.open();
     
     // Result page header
-    resHdr2   = '<title> ' + SongName + ' </title>\n\n'; 
+    resHdr2 = '<title> ' + SongName + ' </title>\n\n';      // song title
+    resHdr3 = ''                                            // CSS styles
+    for (i = 0; i < StyleArray.length; i++)
+    {
+        resHdr3 += StyleArray[i];
+    }
     resHdrAll = resHdr1 + resHdr2 + resHdr3 + resHdr4;
     resultWin.document.write(resHdrAll);
     // Result page body
@@ -247,15 +258,13 @@ function CalcCellWidth ( noteLen )
                 alert('illegal noteLen ' + noteLen);
             }
         }
-        //x console.log('curChar = ' + curChar + ', curCharSpan = ' + curCharSpan);
         totalSpan += curCharSpan;
     }    
     //
-    //x console.log('totalSpan = ' + totalSpan);
     finalCellWidth = '"' + (totalSpan * CellWidthNum / 10).toString() + '%"';    
-    console.log('noteLen = ' + noteLen + ', finalCellWidth = ' + finalCellWidth);
+    //x console.log('noteLen = ' + noteLen + ', finalCellWidth = ' + finalCellWidth);
     return(finalCellWidth);
-}        
+}
 
 
 function ProcessData ()
@@ -267,6 +276,7 @@ function ProcessData ()
     //     (none)
 {
     var         j;
+    var         m, n;
 
     alert('ProcessData() called');
     
@@ -277,7 +287,39 @@ function ProcessData ()
     HeaderWidthNum = 1000 - (DivPerLine * CellWidthNum);
     console.log('CellWidthNum = ' + CellWidthNum + ', HeaderWidthNum  = ' + HeaderWidthNum);
     
-    // Write table header line ????
+    // Table
+    rowStr   = '\n<table width=95%>\n'
+    resBody += rowStr
+    
+    // Write table header line
+    totalCells = BeatsPerBar * BarsPerLine;
+    if ((totalCells % 3) == 0)
+    {
+        cellsPerLine = 3;
+    }
+    else if ((totalCells % 4) == 0)
+    {
+        cellsPerLine = 4;
+    }
+    else
+    {
+        cellsPerLine = 2;
+    }
+    headerRowStr = '\n<tr class="tableHdr">\n  <td width=' + (HeaderWidthNum / 10).toString() + '%>'
+    headerChar   = '&nbsp;';
+    for (m = 0; m < totalCells; m += cellsPerLine)
+    {
+        for (n = 0; n < cellsPerLine; n++)
+        {
+            if (n == 0)
+            {
+                headerRowStr += '\n';
+            }
+            headerRowStr += '  <td width=' + (CellWidthNum / 10).toString() + '%>' + headerChar + '</td>';
+        }
+    }
+    headerRowStr += '\n</tr>\n';
+    resBody      += headerRowStr;
     
     // Write table content lines
     numNotes = LineContentList.length;
@@ -293,9 +335,10 @@ function ProcessData ()
         noteMelody = oneNote[2];
         noteLen    = oneNote[3];
         cellWidth  = CalcCellWidth(noteLen);
-        //x outStr = 'Note ' + j + ' : cellWidth = ' + cellWidth;
-        //x console.log(cellWidth);
     }
+    
+    // Wrap up table and document
+    resBody += '\n</table>\n\n<p>&nbsp;\n\n';
 }
 
 
@@ -340,7 +383,6 @@ function Process_CheckLyrics ()
                 oneLine = contentLines[i];
                 ProcessInputLine(i+1, oneLine);
             }
-            //x LineContentList.push(['#END#', '', '', '']);
             //
             ProcessData()
             resultButton.disabled = false;
