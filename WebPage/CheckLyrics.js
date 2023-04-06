@@ -3,7 +3,6 @@
 // Parameters from input form
 var SongName;
 var BeatsPerBar;
-var MinNoteDur;
 var BarsPerLine;
 
 // Input and output files
@@ -13,11 +12,13 @@ var outputFileName = null;
 
 // Buttons
 const resultButton = document.getElementById("viewResult");
+const melodyButton = document.getElementById("playMelody");
 
 let StyleArray = [
     '<style>',
     '\n  table\n  {\n    table-layout: fixed;\n    border: 1px solid black;\n    border-collapse: collapse;\n  }',
-    '\n  td\n  {\n    border: 1px solid black;\n  }',
+    '\n  tdExt\n  {\n    border: 1px solid black;\n  }',
+    '\n  .tdInt\n  {\n    border: none;\n    table-layout: fixed;\n  }',
     '\n  label\n  {\n    display: inline-block;\n    width: 150px;\n  }',
     '\n  input\n  {\n    display: inline-block;\n    width: 250px;\n  }',
     '\n  select\n  {\n    display: inline-block;\n    width: 250px;\n  }',
@@ -46,9 +47,22 @@ var ContentCnt      = 0
 var BodyLines = new Array(0);
 
 // Subdivisions per beat (for column width)
-var SubDivPerBeat  = 1;
+// var SubDivPerBeat  = 1;
 var CellWidthNum   = 0;         // integer, as multiples of 0.1%
 var HeaderWidthNum = 0;         // integer, as multiples of 0.1%
+
+// noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intTone]
+// [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TINT]
+const IDX_CHI   = 0;
+const IDX_JP    = 1;
+const IDX_TN    = 2;
+const IDX_NOTE  = 3;
+const IDX_BEAT  = 4;
+const IDX_WIDTH = 5;
+const IDX_MINT  = 6;
+const IDX_TINT  = 7;
+
+const CHECK_CHAR = '\u2713';
 
 
 // =====================================================================
@@ -66,6 +80,8 @@ function SaveFilePath(input)
     inputFileName  = inputFile.name;
     outputFileName = inputFileName.replace('.txt', '_out.html');
     console.log('outputFileName = ' + outputFileName);
+    resultButton.disabled = true;
+    melodyButton.disabled = true;
 }
  
 
@@ -78,33 +94,39 @@ function ProcessInputLine(idx, curLine)
     // Outputs
     //     (none)
 {
-    if (idx < 10)
-    {
-        idxStr = '00' + idx;
-    }
-    else if (idx < 100)
-    {
-        idxStr = '0' + idx;
-    }
-    else
-    {
-        idxStr = '' + idx;
-    }
-    //
+    var         noteBeat;
+
+    // if (idx < 10)
+    // {
+    //     idxStr = '00' + idx;
+    // }
+    // else if (idx < 100)
+    // {
+    //     idxStr = '0' + idx;
+    // }
+    // else
+    // {
+    //     idxStr = '' + idx;
+    // }
+    // //
     if (curLine.trim() == '')
     {
-        outContent = '(empty line)';
+        outContent = 'Line ' + idx + ' : (empty line)';
     }
     else if (curLine[0] == '#')
     {
-        outContent = '(comment line)';
+        outContent = 'Line ' + idx + ' : (comment line)';
     }
     else if (curLine.substring(0,3).toLowerCase() == 'bar')
     {
         // bar
-        outContent = 'bar line';
+        outContent = 'Line ' + idx + ' : bar line';
         //
         // Calculate whether there are enough beats ????????
+        //
+        noteArray = ['(bar)', '', 0, '', '', 0]
+        LineContentList.push(noteArray);
+        outContent = 'Line ' + idx + ' : noteArray = [' + noteArray.toString() + ']';
     }
     else if (curLine[0] == '@')
     {
@@ -118,47 +140,50 @@ function ProcessInputLine(idx, curLine)
         lineContent = curLine.split(/\s+/);
         if (lineContent.length != 4)
         {
-            outContent = 'ERROR: line ' + idxStr + ' does not have 4 entries'
+            errStr = 'ERROR: line ' + idx + ' does not have 4 entries'
+            console.log(errStr);
+            return
         }
-        else
+        //
+        chiWord    = lineContent[0];
+        jyutping   = lineContent[1];
+        noteMelody = lineContent[2];
+        noteLength = lineContent[3];
+        //
+        noteBeat = 0
+        for (let c of noteLength)
         {
-            LineContentList.push(lineContent);
-            outContent = lineContent.toString();
-            //
-            noteLength = lineContent[3];
-            if (noteLength.includes('H'))
+            c1 = c.toUpperCase();
+            if (c1 == 'Q')
             {
-                if ((SubDivPerBeat % 2) != 0)
-                {
-                    SubDivPerBeat *= 2;
-                    //x console.log('New SubDivPerBeat = ' + SubDivPerBeat);
-                }  
+                noteBeat += 0.25;
             }
-            else if (noteLength.includes('Q'))
+            else if (c1 == 'T')
             {
-                if ((SubDivPerBeat % 4) != 0)
-                {
-                    if ((SubDivPerBeat % 2) != 0)
-                    {
-                        SubDivPerBeat *= 4;
-                        //x console.log('New SubDivPerBeat = ' + SubDivPerBeat);
-                    }
-                    else
-                    {
-                        SubDivPerBeat *= 2;
-                        //x console.log('New SubDivPerBeat = ' + SubDivPerBeat);
-                    }
-                }  
+                noteBeat += 0.33;
             }
-            else if (noteLength.includes('T'))
+            else if (c1 == 'H')
             {
-                if ((SubDivPerBeat % 3) != 0)
-                {
-                    SubDivPerBeat *= 3;
-                    //x console.log('New SubDivPerBeat = ' + SubDivPerBeat);
-                }  
+                noteBeat += 0.5;
             }
+            else
+            {
+                noteBeat += Number(c1);
+            }             
         }
+        noteWidth = noteBeat * 100 / BeatsPerBar;
+        //
+        // Temp ????????
+        intMelody = '0/U';
+        intTone   = CHECK_CHAR;
+        //
+        noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intTone];
+        LineContentList.push(noteArray);
+        outContent = 'Line ' + idx + ' : noteArray = [' + noteArray.toString() + ']';
+    }
+    if (0)
+    {
+        console.log(outContent);
     }
 }
 
@@ -179,7 +204,7 @@ function WriteResult()
     resultWin = window.open();
     
     // Result page header
-    resHdr2 = '<title> ' + SongName + ' </title>\n\n';      // song title
+    resHdr2 = '<title> ' + SongName + ' (Generated output) </title>\n\n';      // song title
     resHdr3 = ''                                            // CSS styles
     for (i = 0; i < StyleArray.length; i++)
     {
@@ -217,56 +242,6 @@ function WriteResult()
 }
 
 
-function CalcCellWidth ( noteLen )
-    // Function to calculate the cell width for the required note length
-    // 
-    // Inputs
-    //     noteLen : length of the note, one or two of the following character set ('Q', 'T', 'H', 1, 2, 3, 4)
-    // Outputs
-    //     cell width as a string (e.g. "1.23%")
-{
-    var     i;
-    var     curChar      = '';
-    var     curCharSpan  = 0;
-    var     curCharWidth = 0;
-    
-    totalSpan = 0;
-    strLen    = noteLen.length;
-    for (i = 0; i < strLen; i++)
-    {
-        curChar = noteLen[i];
-        if (Number.isInteger(Number(curChar)))
-        {
-            curCharSpan = parseInt(curChar) * SubDivPerBeat;
-        }
-        else
-        {
-            if (curChar == 'H')
-            {
-                curCharSpan = SubDivPerBeat / 2;
-            }
-            else if (curChar == 'T')
-            {
-                curCharSpan = SubDivPerBeat / 3;
-            }
-            else if (curChar == 'Q')
-            {
-                curCharSpan = SubDivPerBeat / 4;
-            }
-            else
-            {
-                alert('illegal noteLen ' + noteLen);
-            }
-        }
-        totalSpan += curCharSpan;
-    }    
-    //
-    finalCellWidth = '"' + (totalSpan * CellWidthNum / 10).toString() + '%"';    
-    //x console.log('noteLen = ' + noteLen + ', finalCellWidth = ' + finalCellWidth);
-    return(finalCellWidth);
-}
-
-
 function ProcessData ()
     // Function to process LineContentList, which contains data read from input file
     // 
@@ -277,68 +252,99 @@ function ProcessData ()
 {
     var         j;
     var         m, n;
+    var         barState = false;       // true if inside bar
+    var         barCount = 0;           // count of bars
 
     alert('ProcessData() called');
-    
-    // Table cell widths
-    console.log('Final SubDivPerBeat = ' + SubDivPerBeat);
-    DivPerLine     = SubDivPerBeat * BeatsPerBar * BarsPerLine;
-    CellWidthNum   = Math.floor(900 / DivPerLine);
-    HeaderWidthNum = 1000 - (DivPerLine * CellWidthNum);
-    console.log('CellWidthNum = ' + CellWidthNum + ', HeaderWidthNum  = ' + HeaderWidthNum);
     
     // Table
     rowStr   = '\n<table width=95%>\n'
     resBody += rowStr
     
-    // Write table header line
-    totalCells = BeatsPerBar * BarsPerLine;
-    if ((totalCells % 3) == 0)
-    {
-        cellsPerLine = 3;
-    }
-    else if ((totalCells % 4) == 0)
-    {
-        cellsPerLine = 4;
-    }
-    else
-    {
-        cellsPerLine = 2;
-    }
-    headerRowStr = '\n<tr class="tableHdr">\n  <td width=' + (HeaderWidthNum / 10).toString() + '%>'
-    headerChar   = '&nbsp;';
-    for (m = 0; m < totalCells; m += cellsPerLine)
-    {
-        for (n = 0; n < cellsPerLine; n++)
-        {
-            if (n == 0)
-            {
-                headerRowStr += '\n';
-            }
-            headerRowStr += '  <td width=' + (CellWidthNum / 10).toString() + '%>' + headerChar + '</td>';
-        }
-    }
-    headerRowStr += '\n</tr>\n';
-    resBody      += headerRowStr;
-    
     // Write table content lines
     numNotes = LineContentList.length;
     console.log('numNotes = ' + numNotes);
-    //x console.log(LineContentList);
+    //
+    if (0)
+    {
+        // Fake line
+        resBody += '\n<tr> <td width=50%>Temp row with 2 cells </td> <td>&nbsp; </td> </tr>\n'
+    }
+    //
+    barWidth    = (100 / BarsPerLine);
+    barStartTxt = '    <td width=' + barWidth.toString() +'%>\n';
+    console.log('barStartTxt = ' + barStartTxt);
     //
     for (j = 0; j < numNotes; j++)
     {
+        // noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intTone]
+        // [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TINT]      
         oneNote = LineContentList[j];
-        console.log('j = ' + j + ' : ' + oneNote);
-        chiWord    = oneNote[0];
-        jyutping   = oneNote[1];
-        noteMelody = oneNote[2];
-        noteLen    = oneNote[3];
-        cellWidth  = CalcCellWidth(noteLen);
+        outStr0 = 'j = ' + j + ' : [' + oneNote + ']'
+        console.log(outStr0);
+        chiWord    = oneNote[IDX_CHI];
+        jyutping   = oneNote[IDX_JP];
+        noteMelody = oneNote[IDX_NOTE];
+        noteWidth  = oneNote[IDX_WIDTH];
+        intMelody  = oneNote[IDX_MINT];
+        intTone    = oneNote[IDX_TINT];
+        //
+        if (barCount == 0)
+        {
+            lineHtml  = '  <tr>  <!-- row begin -->\n';
+        }
+        if (barState == false)
+        {
+            barState     = true;
+            trStartTxt   = '        <tr>\n'
+            wordRow      = trStartTxt;
+            juytPingRow  = trStartTxt;
+            melodyRow    = trStartTxt;
+            intMelodyRow = trStartTxt;
+            intToneRow   = trStartTxt; 
+        }
+        if (chiWord != '(bar)')
+        {
+            tdStartTxt    = '          <td width=' + noteWidth.toString() +'%>';
+            wordRow      += (tdStartTxt + chiWord + '</td>\n');
+            juytPingRow  += (tdStartTxt + jyutping + '</td>\n');
+            melodyRow    += (tdStartTxt + noteMelody + '</td>\n');
+            intMelodyRow += (tdStartTxt + intMelody + '</td>\n');
+            intToneRow   += (tdStartTxt + intTone + '</td>\n');
+        }
+        else
+        {
+            // end of bar, flush output to barHtml
+            // console.log('* end of bar, wordRow = ' + wordRow);
+            console.log('* end of bar');
+            rowEndTxt  = '        </tr>\n';
+            barHtml    = barStartTxt;
+            barHtml   += '      <table class="tableInt" width=100%>\n';
+            barHtml   += wordRow      + rowEndTxt;
+            barHtml   += juytPingRow  + rowEndTxt;
+            barHtml   += melodyRow    + rowEndTxt;
+            barHtml   += intMelodyRow + rowEndTxt;
+            barHtml   += intToneRow   + rowEndTxt;
+            barHtml   += '      </table> <!-- tableInt -->\n';
+            barHtml   += '    </td>\n';
+            //
+            barState  = false;
+            barCount += 1;
+            lineHtml += barHtml;
+            if (barCount == BarsPerLine)
+            {
+                console.log('* * end of line');
+                lineHtml += '  </tr> <!-- row -->\n';
+                resBody  += lineHtml;
+                barCount  = 0;
+            }
+        }
     }
     
     // Wrap up table and document
     resBody += '\n</table>\n\n<p>&nbsp;\n\n';
+    alert('ProcessData() finished');
+    console.log(resBody);
 }
 
 
@@ -355,9 +361,9 @@ function Process_CheckLyrics ()
     BeatsPerBar = document.getElementById("beatsPerBar").value;
     outStr2  = 'Beats per bar = ' + BeatsPerBar;
     console.log(outStr2);
-    MinNoteDur = document.getElementById("minNoteDur").value;
-    outStr3  = 'Min note duration = ' + MinNoteDur;
-    console.log(outStr3);
+    // MinNoteDur = document.getElementById("minNoteDur").value;
+    // outStr3  = 'Min note duration = ' + MinNoteDur;
+    // console.log(outStr3);
     BarsPerLine = document.getElementById("barsPerLine").value;
     outStr4  = 'Bars per Line = ' + BarsPerLine;
     console.log(outStr4);
@@ -386,6 +392,7 @@ function Process_CheckLyrics ()
             //
             ProcessData()
             resultButton.disabled = false;
+            melodyButton.disabled = false;
             alert('Process_CheckLyrics() success');
             myReader = null;
         };

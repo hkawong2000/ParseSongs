@@ -4,25 +4,29 @@
 游      jau4    -5      1
 游      jau4    -5      1
 -       -        -      1
-    
+bar
+
 金      gam1     3      H
 魚      jyu2*    3      H
 游      jau4    -5      H
 游      jau4    -5      H
 游      jau4    -5      1
 -       -        -      1
+bar
 
 呱      gwa1     2      1
 呱      gwa1     2      1
 呱      gwa1     2      1
 -       -        -      1
-    
+bar
+   
 青      cing1    3      H
 蛙      wa1      3      H
 池      ci4      -5     H
 塘      tong4    -5     H
 跳      tiu3     1      1
 -       -        -      1
+bar
 
 我      ngo5     5      H
 看      hon3     5      H
@@ -30,6 +34,7 @@
 小      siu2     6      H
 鳥      niu5     5      1
 -       -        -      1
+bar
 
 小      siu2     5      H
 狗      gau2     5      H
@@ -37,6 +42,7 @@
 又      jau6     3      H
 叫      giu3     4      1
 -       -        -      1
+bar
 
 小      siu2     2      H
 貓      maau1    3      H
@@ -46,10 +52,12 @@
 我      ngo5     1      H
 笑      siu3     1      H
 我      ngo5     1      H
-    
+bar
+
 找      zaau2    2      H
 到      dou2*    2      H
 朋      pang4   -5      H
 友      jau5     1      H
 了      liu5     1      1
 -       -        -      1
+bar
