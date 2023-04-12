@@ -89,10 +89,6 @@ function Calc_Note(oneNote)
     }
     noteVal = Dict_Notes[note1];
     result  = noteVal + octaveInc;
-    // console.log("  note1     = " + note1     + ' ' + (typeof note1));
-    // console.log("  octaveInc = " + octaveInc + ' ' + (typeof octaveInc));
-    // console.log("  noteVal   = " + noteVal   + ' ' + (typeof noteVal));
-    // console.log("  result    = " + result    + ' ' + (typeof result));
     return(result);
 }
 
@@ -110,8 +106,6 @@ function Calc_MusicInterval(prevNote, curNote)
 {
     note1    = Calc_Note(prevNote);
     note2    = Calc_Note(curNote);
-    // console.log("note1 = " + note1);
-    // console.log("note2 = " + note2);
     noteDiff = Math.abs(note1 - note2);
     if (noteDiff == 0)
     {

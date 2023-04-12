@@ -170,18 +170,6 @@ function ProcessInputLine(idx, curLine)
         //     ???? and case when chiWord has no tone
         curTone = jyutping.slice(-1,);
         //
-        if (chiWord == '-')
-        {
-            PrevRest = true;
-        }
-        else
-        {
-            PrevRest   = false;
-            PrevWord   = chiWord;
-            PrevTone   = curTone;
-            PrevMelody = noteMelody;
-        }
-        //
         noteBeat = 0
         for (let c of noteLength)
         {
@@ -206,7 +194,7 @@ function ProcessInputLine(idx, curLine)
         noteWidth = noteBeat * 100 / BeatsPerBar;
         //
         // Calculate melody interval
-        if ((chiWord != '-') && (PrevWord != '-'))
+        if ((chiWord != '-') && (PrevWord != ''))
         {
             intMelody = Calc_MusicInterval(PrevMelody, noteMelody);
         }
@@ -222,6 +210,19 @@ function ProcessInputLine(idx, curLine)
         noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intTone];
         LineContentList.push(noteArray);
         outContent = 'Line ' + idx + ' : noteArray = [' + noteArray.toString() + ']';
+        //
+        // Store values to Prev... variables
+        if (chiWord == '-')
+        {
+            PrevRest = true;
+        }
+        else
+        {
+            PrevRest   = false;
+            PrevWord   = chiWord;
+            PrevTone   = curTone;
+            PrevMelody = noteMelody;
+        }
     }
     if (0)
     {
@@ -381,7 +382,7 @@ function ProcessData ()
     // Wrap up table and document
     resBody += '\n</table>\n\n<p>&nbsp;\n\n';
     alert('ProcessData() finished');
-    console.log(resBody);
+    // console.log(resBody);
 }
 
 
@@ -458,5 +459,4 @@ myForm.addEventListener('submit', function(event){
     Process_CheckLyrics();
 })
 
-TempTest1('Calling TempTest1 from CheckLyrics.js');
 console.log('CheckLyrics.js loaded')
