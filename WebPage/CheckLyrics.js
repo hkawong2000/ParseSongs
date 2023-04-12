@@ -17,8 +17,8 @@ const melodyButton = document.getElementById("playMelody");
 let StyleArray = [
     '<style>',
     '\n  table\n  {\n    table-layout: fixed;\n    border: 1px solid black;\n    border-collapse: collapse;\n  }',
-    '\n  tdExt\n  {\n    border: 1px solid black;\n  }',
-    '\n  .tdInt\n  {\n    border: none;\n    table-layout: fixed;\n  }',
+    '\n  .tdExt\n  {\n    border: 1px solid black;\n    border-collapse: collapse;\n  }',
+    '\n  .tdInt\n  {\n    border: 1px solid lightgrey;\n    table-layout: fixed;\n  }',
     '\n  label\n  {\n    display: inline-block;\n    width: 150px;\n  }',
     '\n  input\n  {\n    display: inline-block;\n    width: 250px;\n  }',
     '\n  select\n  {\n    display: inline-block;\n    width: 250px;\n  }',
@@ -63,6 +63,21 @@ const IDX_MINT  = 6;
 const IDX_TINT  = 7;
 
 const CHECK_CHAR = '\u2713';
+
+// Global variables
+var PrevRest   = true;
+var PrevWord   = '';
+var PrevTone   = 0;
+var PrevMelody = '';
+
+const HeaderCellStart  = '    <td class="tdExt" width=10%>\n      <table class="tableInt" width=100%>\n'
+const WordHdr          = '        <tr>\n          <td class="tdInt wd rh"> 字 </td>\n        </tr>\n';
+const JyutPingHdr      = '        <tr>\n          <td class="tdInt tn rh"> 粵拼 </td>\n        </tr>\n';
+const MelodyHdr        = '        <tr>\n          <td class="tdInt ml rh"> &#x1D160; </td>\n        </tr>\n';
+const MusicIntervalHdr = '        <tr>\n          <td class="tdInt in rh"> Int-Melody </td>\n        </tr>\n';
+const ToneIntervalHdr  = '        <tr>\n          <td class="tdInt ti rh"> Int-Tone </td>\n        </tr>\n';
+const HeaderCellEnd    = '      </table>\n    </td>\n'
+const Column_Hdr       =   HeaderCellStart + WordHdr + JyutPingHdr + MelodyHdr + MusicIntervalHdr + ToneIntervalHdr + HeaderCellEnd;
 
 
 // =====================================================================
@@ -150,6 +165,23 @@ function ProcessInputLine(idx, curLine)
         noteMelody = lineContent[2];
         noteLength = lineContent[3];
         //
+        // Check Jyutping tone validity
+        // curTone = GetToneNumber(jyutping);       ????????????????????????????
+        //     ???? and case when chiWord has no tone
+        curTone = jyutping.slice(-1,);
+        //
+        if (chiWord == '-')
+        {
+            PrevRest = true;
+        }
+        else
+        {
+            PrevRest   = false;
+            PrevWord   = chiWord;
+            PrevTone   = curTone;
+            PrevMelody = noteMelody;
+        }
+        //
         noteBeat = 0
         for (let c of noteLength)
         {
@@ -173,9 +205,19 @@ function ProcessInputLine(idx, curLine)
         }
         noteWidth = noteBeat * 100 / BeatsPerBar;
         //
-        // Temp ????????
-        intMelody = '0/U';
+        // Calculate melody interval
+        if ((chiWord != '-') && (PrevWord != '-'))
+        {
+            intMelody = Calc_MusicInterval(PrevMelody, noteMelody);
+        }
+        else
+        {
+            intMelody = '-';
+        }
+        //        
+        // Temp ???????? (Calculate Yiu interval tones)
         intTone   = CHECK_CHAR;
+        // intTone = Calc_YiuResult(PrevTone, curTone, intMelody, PrevRest);
         //
         noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intTone];
         LineContentList.push(noteArray);
@@ -265,14 +307,8 @@ function ProcessData ()
     numNotes = LineContentList.length;
     console.log('numNotes = ' + numNotes);
     //
-    if (0)
-    {
-        // Fake line
-        resBody += '\n<tr> <td width=50%>Temp row with 2 cells </td> <td>&nbsp; </td> </tr>\n'
-    }
-    //
-    barWidth    = (100 / BarsPerLine);
-    barStartTxt = '    <td width=' + barWidth.toString() +'%>\n';
+    barWidth    = (90 / BarsPerLine);
+    barStartTxt = '    <td class="tdExt" width=' + barWidth.toString() +'%>\n';
     console.log('barStartTxt = ' + barStartTxt);
     //
     for (j = 0; j < numNotes; j++)
@@ -292,6 +328,7 @@ function ProcessData ()
         if (barCount == 0)
         {
             lineHtml  = '  <tr>  <!-- row begin -->\n';
+            lineHtml += Column_Hdr;
         }
         if (barState == false)
         {
@@ -305,7 +342,7 @@ function ProcessData ()
         }
         if (chiWord != '(bar)')
         {
-            tdStartTxt    = '          <td width=' + noteWidth.toString() +'%>';
+            tdStartTxt    = '          <td class="tdInt" width=' + noteWidth.toString() +'%>';
             wordRow      += (tdStartTxt + chiWord + '</td>\n');
             juytPingRow  += (tdStartTxt + jyutping + '</td>\n');
             melodyRow    += (tdStartTxt + noteMelody + '</td>\n');
@@ -353,6 +390,9 @@ function Process_CheckLyrics ()
     var         oneLine;
 
     // alert("Process_CheckLyrics() called");
+    
+    //x import { TestAlert1 } from 'PlayTone.js'
+    //x TestAlert1('Test using function from another js file');
     
     // Get parameters from input form
     SongName = document.getElementById("songName").value;
@@ -418,4 +458,5 @@ myForm.addEventListener('submit', function(event){
     Process_CheckLyrics();
 })
 
+TempTest1('Calling TempTest1 from CheckLyrics.js');
 console.log('CheckLyrics.js loaded')
