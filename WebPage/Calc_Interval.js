@@ -123,10 +123,11 @@ function Calc_MusicInterval(prevNote, curNote)
 }
 
 
-function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
+function Calc_YiuResult(chiWord, prevTone, curTone, mInterval, prevRest)
     // Calculate the interval between notes, based on tones and intervals suggested by Suki Yiu 2013/2014
     // 
     // Inputs:
+    //     chiWord   : Chinese word (reference for debugging)
     //     prevTone  : tone of previous word (numeric format, 1 to 6)
     //     curTone   : tone of current word (numeric format, 1 to 6)
     //     mInterval : interval based on melody (string format, e.g. 5/P4)
@@ -137,14 +138,15 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
     //         yKey    = key for indexing into YiuInterval dict()
     //         result  = a string for inserting in HTML table
 {
-    CHECK_CHAR = '\u2713';
+    const CHECK_CHAR = '\u2713';
+
     targetMap  = [0, 5, 5, 3, 1, 3, 2];
     returnCode = 0;
     yKey       = '';
     
     prevTarget = targetMap[prevTone];
     curTarget  = targetMap[curTone];
-    console.log('prevTarget = ' + prevTarget + ', type = ' + typeof prevTarget);
+    //x console.log('prevTarget = ' + prevTarget + ', curTarget = ' + curTarget +', type = ' + typeof prevTarget);
     if (prevTarget > curTarget)
     {
         higherTarget = prevTarget;
@@ -155,7 +157,7 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
         higherTarget = curTarget;
         lowerTarget  = prevTarget;
     }
-    // console.log("higherTarget = " + higherTarget + ", lowerTarget = " + lowerTarget);
+    //x console.log("higherTarget = " + higherTarget + ", lowerTarget = " + lowerTarget + ', type = ' + typeof higherTarget);
 
     if ((higherTarget == 0) || (lowerTarget == 0))
     {
@@ -170,7 +172,7 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
     else if ((higherTarget == lowerTarget) && (mInterval != '0/U'))
     {
         // same target, different note
-        if (PrevRest == true)
+        if (prevRest == true)
         {
             retCode = SAME_TARGET_DIFF_NOTE + PREV_REST_VAL;
             result  = '<span class="mismatchSameTone tooltip"> (sT-p) <span class="tooltiptext"> Same TT diff note after rest </span> </span>';
@@ -184,8 +186,8 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
     else if ((higherTarget != lowerTarget) && (mInterval == '0/U'))
     {
         // same note, different target
-        yKey = str(higherTarget) + str(lowerTarget);
-        if (PrevRest == true)
+        yKey = higherTarget.toString() + lowerTarget.toString();
+        if (prevRest == true)
         {
             retCode = DIFF_TARGET_SAME_NOTE + PREV_REST_VAL;
             result  = '<span class="mismatchSameNote tooltip"> (sN-p) <span class="tooltiptext"> Same note diff TT after rest </span> </span>';
@@ -199,16 +201,20 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
     else
     {
         yKey          = higherTarget.toString() + lowerTarget.toString(); 
+        //x console.log("@ higherTarget = " + higherTarget + ", lowerTarget = " + lowerTarget + ', type = ' + typeof higherTarget);
+        //x console.log("  yKey = " + yKey);
         yValue        = YiuInterval[yKey];
         ySemitoneList = yValue[1];
         mSemitones    = parseInt(mInterval[0]);
+        // console.log('chiWord = ' + chiWord + ', ySemitoneList = ' + ySemitoneList);
+        //
         if (ySemitoneList.includes(mSemitones))
         {
             // match one of the defined values
             retCode = 0;
             result  = CHECK_CHAR;
         }
-        else if ((mSemitones >= ySemitoneList[0]) && (mSemitones <= ySemitoneList[-1]))
+        else if ((mSemitones >= ySemitoneList[0]) && (mSemitones <= ySemitoneList.slice(-1)))
         {
             // does not match exactly the values given in Yiu, but is within the range
             if (prevRest == true)
@@ -236,8 +242,7 @@ function Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
             }
         }
     }
-    console.log('retCode = ' + retCode);
-    return([retCode, yKey, result]);
+    return([retCode, result]);
 }
 
 
@@ -247,15 +252,11 @@ function TempTest1(inStr)
 }
 
 
-if (1) 
+if (0) 
 {
     console.log('Code running from "Temp_Interval.js"');
-    //
-    // Calc_YiuResult(prevTone, curTone, mInterval, prevRest)
-    result1 = Calc_YiuResult(1, 4, '7/P5', false);
-    console.log('result1 = ' + result1)
-    console.log("Calc_MusicInterval " + Calc_MusicInterval("-5", "2"));
 }
 
 
 alert('Calc_Interval.js imported');
+

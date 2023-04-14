@@ -23,6 +23,9 @@ let StyleArray = [
     '\n  input\n  {\n    display: inline-block;\n    width: 250px;\n  }',
     '\n  select\n  {\n    display: inline-block;\n    width: 250px;\n  }',
     '\n  .testResult\n  {\n    font-family: monospace;\n  }',
+    '\n  .tooltip {\n    position: relative;\n    display: inline-block;\n    border-bottom: 1px dotted black;\n  }',
+    '\n  .tooltip .tooltiptext {\n    font-size: 75%;\n    visibility: hidden;\n    width: 110px;\n    background-color: #F0F080;\n    color: black;\n    text-align: center;\n    padding: 2px 5px;\n    position: absolute;\n    z-index: 1;\n  }',
+    '\n  .tooltip:hover .tooltiptext {\n    visibility: visible;\n  }',
     '\n</style>\n\n',
 ]
 
@@ -52,15 +55,16 @@ var CellWidthNum   = 0;         // integer, as multiples of 0.1%
 var HeaderWidthNum = 0;         // integer, as multiples of 0.1%
 
 // noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intTone]
-// [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TINT]
-const IDX_CHI   = 0;
-const IDX_JP    = 1;
-const IDX_TN    = 2;
-const IDX_NOTE  = 3;
-const IDX_BEAT  = 4;
-const IDX_WIDTH = 5;
-const IDX_MINT  = 6;
-const IDX_TINT  = 7;
+// [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TONE_VAL, IDX_TONE_CODE]
+const IDX_CHI       = 0;
+const IDX_JP        = 1;
+const IDX_TNUM      = 2;
+const IDX_NOTE      = 3;
+const IDX_BEAT      = 4;
+const IDX_WIDTH     = 5;
+const IDX_MINT      = 6;
+const IDX_TONE_VAL  = 7;
+const IDX_TONE_CODE = 8; 
 
 const CHECK_CHAR = '\u2713';
 
@@ -165,10 +169,16 @@ function ProcessInputLine(idx, curLine)
         noteMelody = lineContent[2];
         noteLength = lineContent[3];
         //
-        // Check Jyutping tone validity
-        // curTone = GetToneNumber(jyutping);       ????????????????????????????
-        //     ???? and case when chiWord has no tone
-        curTone = jyutping.slice(-1,);
+        m = jyutping.match(/[a-zA-Z]+([\d])/);
+        if (m != null)
+        {
+            curTone = m[1];
+            // console.log('chiWord = ' + chiWord + ', jyytping = ' + jyutping + ', curTone = ' + curTone);
+        }
+        else
+        {
+            curTone = 0;
+        }
         //
         noteBeat = 0
         for (let c of noteLength)
@@ -197,17 +207,22 @@ function ProcessInputLine(idx, curLine)
         if ((chiWord != '-') && (PrevWord != ''))
         {
             intMelody = Calc_MusicInterval(PrevMelody, noteMelody);
+            yiuResult = Calc_YiuResult(chiWord, PrevTone, curTone, intMelody, PrevRest);
+            // [retCode, yKey, result]
+            retCode     = yiuResult[0];
+            result      = yiuResult[1];
+            intToneVal  = retCode;
+            intToneCode = result;
+            //x console.log('  > retCode = ' + retCode + ', result  = ' + result);
         }
         else
         {
-            intMelody = '-';
+            intMelody   = '-';
+            intToneVal  = -1;
+            intToneCode = '-'
         }
-        //        
-        // Temp ???????? (Calculate Yiu interval tones)
-        intTone   = CHECK_CHAR;
-        // intTone = Calc_YiuResult(PrevTone, curTone, intMelody, PrevRest);
         //
-        noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intTone];
+        noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intToneVal, intToneCode];
         LineContentList.push(noteArray);
         outContent = 'Line ' + idx + ' : noteArray = [' + noteArray.toString() + ']';
         //
@@ -310,21 +325,21 @@ function ProcessData ()
     //
     barWidth    = (90 / BarsPerLine);
     barStartTxt = '    <td class="tdExt" width=' + barWidth.toString() +'%>\n';
-    console.log('barStartTxt = ' + barStartTxt);
+    //x console.log('barStartTxt = ' + barStartTxt);
     //
     for (j = 0; j < numNotes; j++)
     {
-        // noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intTone]
-        // [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TINT]      
+        // noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intToneVal, intToneCode]
+        // [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TONE_VAL, IDX_TONE_CODE]      
         oneNote = LineContentList[j];
-        outStr0 = 'j = ' + j + ' : [' + oneNote + ']'
-        console.log(outStr0);
-        chiWord    = oneNote[IDX_CHI];
-        jyutping   = oneNote[IDX_JP];
-        noteMelody = oneNote[IDX_NOTE];
-        noteWidth  = oneNote[IDX_WIDTH];
-        intMelody  = oneNote[IDX_MINT];
-        intTone    = oneNote[IDX_TINT];
+        //x outStr0 = 'j = ' + j + ' : [' + oneNote + ']'
+        //x console.log(outStr0);
+        chiWord     = oneNote[IDX_CHI];
+        jyutping    = oneNote[IDX_JP];
+        noteMelody  = oneNote[IDX_NOTE];
+        noteWidth   = oneNote[IDX_WIDTH];
+        intMelody   = oneNote[IDX_MINT];
+        intToneCode = oneNote[IDX_TONE_CODE];
         //
         if (barCount == 0)
         {
@@ -344,17 +359,17 @@ function ProcessData ()
         if (chiWord != '(bar)')
         {
             tdStartTxt    = '          <td class="tdInt" width=' + noteWidth.toString() +'%>';
-            wordRow      += (tdStartTxt + chiWord + '</td>\n');
-            juytPingRow  += (tdStartTxt + jyutping + '</td>\n');
-            melodyRow    += (tdStartTxt + noteMelody + '</td>\n');
-            intMelodyRow += (tdStartTxt + intMelody + '</td>\n');
-            intToneRow   += (tdStartTxt + intTone + '</td>\n');
+            wordRow      += (tdStartTxt + chiWord     + '</td>\n');
+            juytPingRow  += (tdStartTxt + jyutping    + '</td>\n');
+            melodyRow    += (tdStartTxt + noteMelody  + '</td>\n');
+            intMelodyRow += (tdStartTxt + intMelody   + '</td>\n');
+            intToneRow   += (tdStartTxt + intToneCode + '</td>\n');
         }
         else
         {
             // end of bar, flush output to barHtml
             // console.log('* end of bar, wordRow = ' + wordRow);
-            console.log('* end of bar');
+            //x console.log('* end of bar');
             rowEndTxt  = '        </tr>\n';
             barHtml    = barStartTxt;
             barHtml   += '      <table class="tableInt" width=100%>\n';
@@ -371,7 +386,7 @@ function ProcessData ()
             lineHtml += barHtml;
             if (barCount == BarsPerLine)
             {
-                console.log('* * end of line');
+                //x console.log('* * end of line');
                 lineHtml += '  </tr> <!-- row -->\n';
                 resBody  += lineHtml;
                 barCount  = 0;
