@@ -27,19 +27,25 @@ var LineList;
 
 function SendToClient ( req, res )
 {
+  if (1)
+  {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    // header   = '<html>\n<meta charset="utf-8">\n<body>\n';
+    // body     = '';
+    body     = '\n<p>Welcome\n\n';
+    // footer   = '</body>\n</html>\n';
+    // res.write(header);
+    // res.write(body);
+    // res.end(footer);
+    res.end(body);
+  }
+  else
+  {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    body = JSON.stringify({'body': 'Hello World'});
+    res.end(body);
+  }
   console.log('SendToClient() called');
-  console.log('  ' + Date.now() + ' : req.method = ' + req.method + ' with content {' + req.url + '}');
-  console.log('  ' + 'req = ' + JSON.stringify(req))
-  console.log('  ' + 'res = ' + JSON.stringify(res))
-
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  header   = '<html>\n<meta charset="utf-8">\n<body>\n';
-  body     = '';
-  body    += '<p>Welcome\n';
-  footer   = '</body>\n</html>\n';
-  res.write(header);
-  res.write(body);
-  res.end(footer);
 }
 
 
@@ -71,7 +77,7 @@ var serverDispatcher = function( req, res )
       LineList    = PostData[4];
       if (1)
       {
-        argStr1 = 'Songname = {' + SongName + '} with datatype ' + (typeof SongName);
+        argStr1 = 'SongName = {' + SongName + '} with datatype ' + (typeof SongName);
         console.log(argStr1);
         argStr2 = 'BeatsPerBar = {' + BeatsPerBar + '} with datatype ' + (typeof BeatsPerBar);
         console.log(argStr2);
@@ -83,7 +89,8 @@ var serverDispatcher = function( req, res )
         console.log(argStr5);
       }
       console.log('Finish ParsePostData()');
-      res.end('ok');
+      SendToClient(req, res);
+      // res.end('ok');
     });
   }
   else if (req.method == 'GET')
@@ -129,14 +136,6 @@ var serverDispatcher = function( req, res )
     console.log('Received neither GET nor POST ...');
     i = 1;
   }
-
-  // V01
-  // res.writeHead(200);
-  // res.end("My first server!");
-
-  // V02
-  // res.writeHead(200);
-  // res.end(`<html><body><p>This is HTML</p></body></html>`);
 }
 
 // =============================================================
