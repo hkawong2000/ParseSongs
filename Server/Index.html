@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<head>
+
+<meta charset="utf-8">
+
+<title> Check Lyrics </title>
+
+<link type="text/css" rel="stylesheet" href="./ClientMain.css">
+<link rel="icon" href="data:,">
+
+<style>
+
+</style>
+
+</head>
+
+<body>
+
+<h1> Check Lyrics </h1>
+
+<!--
+QUARTER_BEAT  = chr(0xBC)
+ONETHIRD_BEAT = chr(0x2153) 
+HALF_BEAT     = chr(0xBD)
+-->
+
+<!-- <form enctype="multipart/form-data" id="inputForm1"> -->
+<form method="post" enctype="multipart/form-data" id="inputForm1">
+  <label for="songName">Name of song</label>
+  <input type="text" id="songName" name="songName" value="迷路找朋友">
+  <br><br>
+  
+  <label for="beatsPerBar">Beats per bar</label>
+  <input type="text" id="beatsPerBar" name="beatsPerBar" value="4">
+  <br><br>
+  
+  <label for="barsPerLine">Bars per Line</label>
+  <input type="text" id="barsPerLine" name="barsPerLine" value="2">
+  <br><br>
+  
+  <label for="inputFile">Select input file</label>
+  <!-- <input type="file" id="inputFile" name="inputFile" onchange="SaveFilePath(this)"> -->
+  <input type="file" id="inputFile" accept=".txt" name="inputFile">
+  <br><br>
+
+  <label></label>
+  <!-- <input type="submit" onClick="SubmitForm()" value="Start"> -->
+  <input type="submit" value="Start">
+  <br><br>
+  
+  <label></label>  
+  <button type="button" id="viewResult" onClick="WriteResult()" disabled> View Result </button>
+  <span> &nbsp; </span> 
+  <button type="button" id="playMelody" onClick="PlayMelody(LineContentList)"  disabled> PlayMelody </button>
+  
+</form>
+
+
+<script src="ClientMain.js"> </script>
+<!--
+<script src="CheckLyrics.js"> </script>
+<script src="Calc_Interval.js"> </script>
+<script src="PlayTone.js">    </script>
+-->
+
+</body>
+
+</html>
