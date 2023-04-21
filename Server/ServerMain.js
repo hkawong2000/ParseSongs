@@ -23,29 +23,49 @@ var BarsPerLine;
 var SongFile;
 var LineList;
 
+// HTML code segments
+var ParamHtml;          // HTML code to report the input parameters
+
 // =============================================================
 
-function SendToClient ( req, res )
+function GenParamHtml ()
+  // Generate the HTML code to report the input parameters
+  //
+  // Inputs
+  //   (none)
+  // Outputs
+  //   HTML code to report the input parameters
 {
-  if (1)
-  {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    // header   = '<html>\n<meta charset="utf-8">\n<body>\n';
-    // body     = '';
-    body     = '\n<p>Welcome\n\n';
-    // footer   = '</body>\n</html>\n';
-    // res.write(header);
-    // res.write(body);
-    // res.end(footer);
-    res.end(body);
-  }
-  else
-  {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    body = JSON.stringify({'body': 'Hello World'});
-    res.end(body);
-  }
-  console.log('SendToClient() called');
+  var paramHtml = '';
+
+  paramHtml += '\n';
+  paramHtml += '\n<p>Input parameters:'
+  paramHtml += '\n<ul>\n';
+  paramHtml += '  <li class="listItem"> SongName : ' + SongName + ' </li>\n';
+  paramHtml += '  <li class="listItem"> BeatsPerBar : ' + BeatsPerBar + ' </li>\n';
+  paramHtml += '  <li class="listItem"> BarsPerLine : ' + BarsPerLine + ' </li>\n';
+  paramHtml += '  <li class="listItem"> SongFile : ' + SongFile + ' </li>\n';
+  paramHtml += '</ul>\n';
+  paramHtml += '\n<hr>\n';
+  return(paramHtml)
+}
+
+
+function SendToClient ( req, res, bodyList )
+  // Send the response after processing back to client
+  //
+  // Inputs
+  //   req, res : from serverDispatcher()
+  //   bodyList : list of HTML codes for the body of the response
+  // Outputs
+  //   HTML code to report the input parameters
+{
+  var   body = '';
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  body += ParamHtml;
+  res.end(body);
+
+  console.log('SendToClient() done');
 }
 
 
@@ -75,20 +95,9 @@ var serverDispatcher = function( req, res )
       BarsPerLine = PostData[2];
       SongFile    = PostData[3];
       LineList    = PostData[4];
-      if (1)
-      {
-        argStr1 = 'SongName = {' + SongName + '} with datatype ' + (typeof SongName);
-        console.log(argStr1);
-        argStr2 = 'BeatsPerBar = {' + BeatsPerBar + '} with datatype ' + (typeof BeatsPerBar);
-        console.log(argStr2);
-        argStr3 = 'BarsPerLine = {' + BarsPerLine + '} with datatype ' + (typeof BarsPerLine);
-        console.log(argStr3);
-        argStr4 = 'SongFile = {' + SongFile + '} with datatype ' + (typeof SongFile);
-        console.log(argStr4);
-        argStr5 = 'contentList has length ' + LineList.length;
-        console.log(argStr5);
-      }
       console.log('Finish ParsePostData()');
+      ParamHtml   = GenParamHtml();
+      //
       SendToClient(req, res);
       // res.end('ok');
     });

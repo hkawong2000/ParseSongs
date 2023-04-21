@@ -28,3 +28,7 @@ select
 {
     font-family: monospace;
 }
+.listItem
+{
+    line-height: 1.25;
+}
