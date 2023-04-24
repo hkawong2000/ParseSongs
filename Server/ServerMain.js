@@ -9,11 +9,12 @@ const http = require("http");
 const fs   = require('fs');
 //
 const ParsePostData = require("./Server_ParsePostData");
+const ProcessLines  = require("./Server_ProcessLines");
 
 // =============================================================
 
 const hostname = 'localhost';
-const port = 8080;
+const port     = 8080;
 
 // Data sent from client
 var PostData;
@@ -29,122 +30,125 @@ var ParamHtml;          // HTML code to report the input parameters
 // =============================================================
 
 function GenParamHtml ()
-  // Generate the HTML code to report the input parameters
-  //
-  // Inputs
-  //   (none)
-  // Outputs
-  //   HTML code to report the input parameters
+    // Generate the HTML code to report the input parameters
+    //
+    // Inputs
+    //   (none)
+    // Outputs
+    //   HTML code to report the input parameters
 {
-  var paramHtml = '';
+    var paramHtml = '';
 
-  paramHtml += '\n';
-  paramHtml += '\n<p>Input parameters:'
-  paramHtml += '\n<ul>\n';
-  paramHtml += '  <li class="listItem"> SongName : ' + SongName + ' </li>\n';
-  paramHtml += '  <li class="listItem"> BeatsPerBar : ' + BeatsPerBar + ' </li>\n';
-  paramHtml += '  <li class="listItem"> BarsPerLine : ' + BarsPerLine + ' </li>\n';
-  paramHtml += '  <li class="listItem"> SongFile : ' + SongFile + ' </li>\n';
-  paramHtml += '</ul>\n';
-  paramHtml += '\n<hr>\n';
-  return(paramHtml)
+    paramHtml += '\n';
+    paramHtml += '\n<p>Input parameters:'
+    paramHtml += '\n<ul>\n';
+    paramHtml += '  <li class="listItem"> SongName : ' + SongName + ' </li>\n';
+    paramHtml += '  <li class="listItem"> BeatsPerBar : ' + BeatsPerBar + ' </li>\n';
+    paramHtml += '  <li class="listItem"> BarsPerLine : ' + BarsPerLine + ' </li>\n';
+    paramHtml += '  <li class="listItem"> SongFile : ' + SongFile + ' </li>\n';
+    paramHtml += '</ul>\n';
+    paramHtml += '\n<hr>\n';
+    return(paramHtml)
 }
 
 
 function SendToClient ( req, res, bodyList )
-  // Send the response after processing back to client
-  //
-  // Inputs
-  //   req, res : from serverDispatcher()
-  //   bodyList : list of HTML codes for the body of the response
-  // Outputs
-  //   HTML code to report the input parameters
+    // Send the response after processing back to client
+    //
+    // Inputs
+    //   req, res : from serverDispatcher()
+    //   bodyList : list of HTML codes for the body of the response
+    // Outputs
+    //   HTML code to report the input parameters
 {
-  var   body = '';
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  body += ParamHtml;
-  res.end(body);
+    var     body = '';
 
-  console.log('SendToClient() done');
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    body += ParamHtml;
+    res.end(body);
+
+    console.log('SendToClient() done');
 }
 
 
 var serverDispatcher = function( req, res )
-  // Server dispatcher to handle incoming packets from client
-  //
-  // Inputs/Outputs : standard
+    // Server dispatcher to handle incoming packets from client
+    //
+    // Inputs/Outputs : standard
 {
-  urlStr = req.url;
-  console.log(Date.now() + ' : req.method = ' + req.method + ' with content {' + req.url + '}');
+    urlStr = req.url;
+    console.log(Date.now() + ' : req.method = ' + req.method + ' with content {' + req.url + '}');
 
-  fileLoc = '';
-  if (req.method == 'POST')
-  {
-    // Reference: https://itnext.io/how-to-handle-the-post-request-body-in-node-js-without-using-a-framework-cd2038b93190
-    //            https://plainenglish.io/blog/parsing-post-data-3-different-ways-in-node-js-e39d9d11ba8
+    fileLoc = '';
+    if (req.method == 'POST')
+    {
+        // Reference: https://itnext.io/how-to-handle-the-post-request-body-in-node-js-without-using-a-framework-cd2038b93190
+        //            https://plainenglish.io/blog/parsing-post-data-3-different-ways-in-node-js-e39d9d11ba8
 
-    console.log(Date.now() +': POST request was made : "' + req.url + '"');
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString(); // convert Buffer to string
-    });
-    req.on('end', () => {
-      PostData    = ParsePostData.ParsePostData(body);
-      SongName    = PostData[0];
-      BeatsPerBar = PostData[1];
-      BarsPerLine = PostData[2];
-      SongFile    = PostData[3];
-      LineList    = PostData[4];
-      console.log('Finish ParsePostData()');
-      ParamHtml   = GenParamHtml();
-      //
-      SendToClient(req, res);
-      // res.end('ok');
-    });
-  }
-  else if (req.method == 'GET')
-  {
-    if ((urlStr == '/') || (urlStr == '/Index.html'))
-    {
-      fileLoc = '/Index.html';
-      res.writeHead(200, {'Content-Type': 'text/html'});
+        console.log(Date.now() +': POST request was made : "' + req.url + '"');
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString(); // convert Buffer to string
+        });
+        req.on('end', () => {
+            PostData    = ParsePostData.ParsePostData(body);
+            SongName    = PostData[0];
+            BeatsPerBar = PostData[1];
+            BarsPerLine = PostData[2];
+            SongFile    = PostData[3];
+            LineList    = PostData[4];
+            console.log('Finish ParsePostData()');
+            ParamHtml   = GenParamHtml();
+            //
+            ProcessLines.ProcessInputLines(LineList, parseInt(BeatsPerBar));
+            //
+            SendToClient(req, res);
+            // res.end('ok');
+        });
     }
-    else if (urlStr == '/ClientMain.css')
+    else if (req.method == 'GET')
     {
-      fileLoc = '/ClientMain.css';
-      res.writeHead(200, {'Content-Type': 'text/css'});
-    }
-    else if (urlStr == '/ClientMain.js')
-    {
-      fileLoc = '/ClientMain.js';
-      res.writeHead(200, {'Content-Type': 'application/javascript'});
-    }
-    else if (urlStr == '/favicon.ico')
-    {
-      // favicon.ico not defined
-      res.writeHead(204, {'Content-Type': 'text/plain'});
-      res.end('');
+        if ((urlStr == '/') || (urlStr == '/Index.html'))
+        {
+            fileLoc = '/Index.html';
+            res.writeHead(200, {'Content-Type': 'text/html'});
+        }
+        else if (urlStr == '/ClientMain.css')
+        {
+            fileLoc = '/ClientMain.css';
+            res.writeHead(200, {'Content-Type': 'text/css'});
+        }
+        else if (urlStr == '/ClientMain.js')
+        {
+            fileLoc = '/ClientMain.js';
+            res.writeHead(200, {'Content-Type': 'application/javascript'});
+        }
+        else if (urlStr == '/favicon.ico')
+        {
+            // favicon.ico not defined
+            res.writeHead(204, {'Content-Type': 'text/plain'});
+            res.end('');
+        }
+        else
+        {
+            // Breakpoint for further processing
+            console.log('Received GET something else ...');
+            i = 1;
+        }
+        //
+        // code to send file stream
+        if (fileLoc != '')
+        {
+            var myReadStream = fs.createReadStream(__dirname + fileLoc, 'utf8');
+            myReadStream.pipe(res);
+        }
     }
     else
     {
-      // Breakpoint for further processing
-      console.log('Received GET something else ...');
-      i = 1;
+        // Breakpoint for further processing
+        console.log('Received neither GET nor POST ...');
+        i = 1;
     }
-    //
-    // code to send file stream
-    if (fileLoc != '')
-    {
-      var myReadStream = fs.createReadStream(__dirname + fileLoc, 'utf8');
-      myReadStream.pipe(res);
-    }
-  }
-  else
-  {
-    // Breakpoint for further processing
-    console.log('Received neither GET nor POST ...');
-    i = 1;
-  }
 }
 
 // =============================================================

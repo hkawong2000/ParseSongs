@@ -1,5 +1,5 @@
 // =============================================================
-// Server for "Check Lyrics" JS code
+// Parse data in POST packet
 // =============================================================
 
 // Need to run "npm install sleep"

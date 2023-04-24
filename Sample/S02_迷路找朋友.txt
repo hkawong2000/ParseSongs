@@ -14,9 +14,9 @@ bar
 -       -        -      1
 bar
 
-呱      gwa1     2      1
-呱      gwa1     2      1
-呱      gwa1     2      1
+呱      gwaa1    2      1
+呱      gwaa1    2      1
+呱      gwaa1    2      1
 -       -        -      1
 bar
    
