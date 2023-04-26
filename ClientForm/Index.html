@@ -67,8 +67,9 @@ HALF_BEAT     = chr(0xBD)
   <!-- <form action="/action_page.php" class="formContainer"> -->
   <form id="inputForm1">
 
-    <label for="noteWord">字</label>
+    <label for="noteWord">字 or bar</label>
     <input type="text" id="noteWord" name="noteWord" value=" ">
+    <button type="button" class="formButton" id="buttonLookup">Bar</button>
     <br><br>
 
     <label for="jyutping">粵拼</label>
@@ -78,10 +79,16 @@ HALF_BEAT     = chr(0xBD)
 
     <label for="noteMelody">melody (note)</label>
     <input type="text" id="noteMelody" name="noteMelody" value=" ">
+    <br>
+    <label></label>
+    <span class="wordHint">Use # for sharp, b for flat, + for 1 octave higher, - for 1 octave lower</span>
     <br><br>
 
     <label for="noteLength">length (# of beats)</label>
     <input type="text" id="noteLength" name="noteLength" value=" ">
+    <br>
+    <label></label>
+    <span class="wordHint">Use h for half-beat, q for quarter-beat, t for one-third-beat</span>
     <br><br>
 
     <label></label> 
