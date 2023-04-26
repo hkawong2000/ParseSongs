@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<head>
+
+<meta charset="utf-8">
+
+<title> Check Lyrics </title>
+
+<link type="text/css" rel="stylesheet" href="./ClientMain.css">
+<link rel="icon" href="data:,">
+
+<style>
+
+</style>
+
+</head>
+
+<body id="myBody">
+
+<h1> Check Lyrics </h1>
+
+<!--
+QUARTER_BEAT  = chr(0xBC)
+ONETHIRD_BEAT = chr(0x2153) 
+HALF_BEAT     = chr(0xBD)
+-->
+
+<form method="post" enctype="multipart/form-data" id="inputForm1">
+  <label for="songName">Name of song</label>
+  <input type="text" id="songName" name="songName" value="迷路找朋友">
+  <br><br>
+  
+  <label for="beatsPerBar">Beats per bar</label>
+  <input type="text" id="beatsPerBar" name="beatsPerBar" value="4">
+  <br><br>
+  
+  <label for="barsPerLine">Bars per Line</label>
+  <input type="text" id="barsPerLine" name="barsPerLine" value="2">
+  <br><br>
+  
+  <label for="inputFile">Select input file</label>
+  <!-- <input type="file" id="inputFile" name="inputFile" onchange="SaveFilePath(this)"> -->
+  <input type="file" id="inputFile" accept=".txt" name="inputFile">
+  <br><br>
+  
+  <label></label>
+  <!-- <input type="submit" onClick="SubmitForm()" value="Start"> -->
+  <input type="submit" value="Start">
+  <br><br>
+
+</form>
+
+<label class="playMelody"></label>   
+<button type="button" class="playMelody" onClick="PlayMelody(LineContentList)" disabled> Play Melody </button>
+
+<hr>
+
+<br>
+<div id="createButton">
+  <label for="button1">Create input file</label>
+  <button onclick="OpenForm()">Open Form</button>
+  <br><br>
+</div>
+
+<div class="formPopup" id="popupForm">
+
+  <!-- <form action="/action_page.php" class="formContainer"> -->
+  <form id="inputForm1">
+
+    <label for="noteWord">字</label>
+    <input type="text" id="noteWord" name="noteWord" value=" ">
+    <br><br>
+
+    <label for="jyutping">粵拼</label>
+    <input type="text" id="jyutping" name="jyutping" value=" ">
+    <button type="button" class="formButton" id="buttonLookup">Lookup</button>
+    <br><br>
+
+    <label for="noteMelody">melody (note)</label>
+    <input type="text" id="noteMelody" name="noteMelody" value=" ">
+    <br><br>
+
+    <label for="noteLength">length (# of beats)</label>
+    <input type="text" id="noteLength" name="noteLength" value=" ">
+    <br><br>
+
+    <label></label> 
+    <button type="button" class="formButton" id="buttonPrev">Prev</button>
+    <button type="button" class="formButton" id="buttonNext">Next</button>
+    <br><br>
+
+    <label for="inputFile">Save File and Close Form</label>
+    <input onclick="CloseForm()" type="file" id="saveFile" accept=".txt" name="saveFile">
+    <br><br>
+
+  </form>
+</div>
+
+<script src="ClientMain.js"> </script>
+
+</body>
+
+</html>

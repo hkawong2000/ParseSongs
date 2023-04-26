@@ -1,0 +1,58 @@
+/* File content inserted in code */
+table
+{
+    table-layout: fixed;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+td
+{
+    border: 1px solid black;
+}
+label
+{
+    display: inline-block; 
+    width: 175px;
+}
+input
+{
+    display: inline-block; 
+    width: 250px; 
+    margin-right: 10px;
+}
+select
+{
+    display: inline-block; 
+    width: 250px; 
+}
+hr
+{
+    width: 500px;
+    margin-left: 0px;
+}
+.playMelody
+{
+    display: none;
+    /* display: inline-block; */ 
+    width: 250px;
+}
+.testResult
+{
+    font-family: monospace;
+}
+.listItem
+{
+    line-height: 1.25;
+}
+.formButton 
+{
+    width: 75px;
+}
+#buttonNext
+{
+    margin-left: 100px;
+}
+#buttonClose
+{
+
+}
