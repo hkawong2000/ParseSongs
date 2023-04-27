@@ -1,5 +1,7 @@
 // Global Variables
 
+var     UserInputList = []
+
 // =====================================================================
 
 const form1 = document.getElementById('inputForm1');
@@ -75,43 +77,56 @@ function handleSubmit(event)
 }
 
 
-function SaveFilePath(input)
-    // Function to save input file and generate name for output file
-    //
-    // Inputs
-    //     input : parameter passed from HTML
-    // Outputs
-    //     (none)
-{
-    inputFile      = input.files[0];
-    inputFileSet   = true;
-    inputFileName  = inputFile.name;
-    outputFileName = inputFileName.replace('.txt', '_out.html');
-    console.log('outputFileName = ' + outputFileName);
-    // resultButton.disabled = true;
-    // melodyButton.disabled = true;
-}
+// function SaveFilePath(input)
+//     // Function to save input file and generate name for output file
+//     //
+//     // Inputs
+//     //     input : parameter passed from HTML
+//     // Outputs
+//     //     (none)
+// {
+//     inputFile      = input.files[0];
+//     inputFileSet   = true;
+//     inputFileName  = inputFile.name;
+//     outputFileName = inputFileName.replace('.txt', '_out.html');
+//     console.log('outputFileName = ' + outputFileName);
+//     // resultButton.disabled = true;
+//     // melodyButton.disabled = true;
+// }
 
 
 function OpenForm()
+    // event handler for "Create input file" button
+    //
+    // Inputs
+    //     (none)
+    // Outputs
+    //     (none)
 {
-    document.getElementById("popupForm").style.display = "block";
+    document.getElementById("inputForm2").style.display   = "block";
+    document.getElementById("inputForm1").style.display   = "none";
+    document.getElementById("createButton").style.display = "none";
+    document.getElementById("wordEntryHeader").innerHTML  = "Hello";
 }
 
 
 function CloseForm()
+    // event handler for "Create input file" button
+    //
+    // Inputs
+    //     (none)
+    // Outputs
+    //     (none)
 {
-    document.getElementById("popupForm").style.display = "none";
+    document.getElementById("inputForm2").style.display   = "none";
+    document.getElementById("inputForm1").style.display   = "block";
+    document.getElementById("createButton").style.display = "block";
 }
 
 
-function ProcessForm()
-{
-    console.log('ProcessForm() called');
-}
+document.getElementById("inputForm2").style.display = "none";
 
-
-document.getElementById("popupForm").style.display = "none";
+// Comment the following line when "create input" function is open
 // document.getElementById("createButton").style.display = "none";
 
 console.log('ClientMain.js loaded')

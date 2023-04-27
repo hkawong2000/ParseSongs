@@ -26,6 +26,7 @@ HALF_BEAT     = chr(0xBD)
 -->
 
 <form method="post" enctype="multipart/form-data" id="inputForm1">
+
   <label for="songName">Name of song</label>
   <input type="text" id="songName" name="songName" value="迷路找朋友">
   <br><br>
@@ -39,7 +40,6 @@ HALF_BEAT     = chr(0xBD)
   <br><br>
   
   <label for="inputFile">Select input file</label>
-  <!-- <input type="file" id="inputFile" name="inputFile" onchange="SaveFilePath(this)"> -->
   <input type="file" id="inputFile" accept=".txt" name="inputFile">
   <br><br>
   
@@ -56,52 +56,50 @@ HALF_BEAT     = chr(0xBD)
 <hr>
 
 <br>
+
 <div id="createButton">
   <label for="button1">Create input file</label>
   <button onclick="OpenForm()">Open Form</button>
   <br><br>
 </div>
 
-<div class="formPopup" id="popupForm">
+<form id="inputForm2">
 
-  <!-- <form action="/action_page.php" class="formContainer"> -->
-  <form id="inputForm1">
+  <p id="wordEntryHeader"></p>
 
-    <label for="noteWord">字 or bar</label>
-    <input type="text" id="noteWord" name="noteWord" value=" ">
-    <button type="button" class="formButton" id="buttonLookup">Bar</button>
-    <br><br>
+  <label for="noteWord">字 or bar</label>
+  <input type="text" id="noteWord" name="noteWord" value=" ">
+  <button type="button" class="formButton" id="barButton">Bar</button>
+  <br><br>
 
-    <label for="jyutping">粵拼</label>
-    <input type="text" id="jyutping" name="jyutping" value=" ">
-    <button type="button" class="formButton" id="buttonLookup">Lookup</button>
-    <br><br>
+  <label for="jyutping">粵拼</label>
+  <input type="text" id="jyutping" name="jyutping" value=" ">
+  <button type="button" class="formButton" id="lookupButton">Lookup</button>
+  <br><br>
 
-    <label for="noteMelody">melody (note)</label>
-    <input type="text" id="noteMelody" name="noteMelody" value=" ">
-    <br>
-    <label></label>
-    <span class="wordHint">Use # for sharp, b for flat, + for 1 octave higher, - for 1 octave lower</span>
-    <br><br>
+  <label for="noteMelody">melody (note)</label>
+  <input type="text" id="noteMelody" name="noteMelody" value=" ">
+  <br>
+  <label></label>
+  <span class="wordHint">Use # for sharp, b for flat, + for 1 octave higher, - for 1 octave lower</span>
+  <br><br>
 
-    <label for="noteLength">length (# of beats)</label>
-    <input type="text" id="noteLength" name="noteLength" value=" ">
-    <br>
-    <label></label>
-    <span class="wordHint">Use h for half-beat, q for quarter-beat, t for one-third-beat</span>
-    <br><br>
+  <label for="noteLength">length (# of beats)</label>
+  <input type="text" id="noteLength" name="noteLength" value=" ">
+  <br>
+  <label></label>
+  <span class="wordHint">Use h for half-beat, q for quarter-beat, t for one-third-beat</span>
+  <br><br>
 
-    <label></label> 
-    <button type="button" class="formButton" id="buttonPrev">Prev</button>
-    <button type="button" class="formButton" id="buttonNext">Next</button>
-    <br><br>
+  <label></label> 
+  <button type="button" class="formButton" id="buttonPrev">Prev</button>
+  <button type="button" class="formButton" id="buttonNext">Next</button>
+  <br><br>
 
-    <label for="inputFile">Save File and Close Form</label>
-    <input onclick="CloseForm()" type="file" id="saveFile" accept=".txt" name="saveFile">
-    <br><br>
-
-  </form>
-</div>
+  <label for="inputFile">Save File and Close Form</label>
+  <input onclick="CloseForm()" type="file" id="saveFile" accept=".txt" name="saveFile">
+  <br><br>
+</form>
 
 <script src="ClientMain.js"> </script>
 
