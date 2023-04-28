@@ -21,22 +21,50 @@ function OpenForm()
 }
 
 
-function LoadFile()
+function LoadFile(input)
     // event handler for "Load file" button
     //
     // Inputs
-    //     (none)
+    //     input : parameter passed from HTML
     // Outputs
     //     (none)
 {
     console.log('LoadFile() called');
+    inputFile     = input.files[0];
+    inputFileName = inputFile.name;
+    console.log('inputFileName = "' + inputFileName);
     //
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file
-    // inputFile = document.getElementById("loadFile").files[0];
-    // console.log('inputFile : '+ inputFile);
-    //
-    // myReader = new FileReader();
-    // myReader.readAsText(inputFile);
+    myReader = new FileReader();
+    myReader.readAsText(inputFile);
+
+    myReader.onload = function() {
+        var contentAll   = myReader.result;
+        var contentLines = contentAll.split(/\r\n/);
+        outStr = 'Number of lines in input file = ' + contentLines.length;
+        console.log(outStr);
+        /*
+        for (let i = 0; i < contentLines.length; i++)
+        {
+            oneLine = contentLines[i];
+            ProcessInputLine(i+1, oneLine);
+        }
+        //
+        ProcessData()
+        resultButton.disabled = false;
+        melodyButton.disabled = false;
+        alert('Process_CheckLyrics() success');
+        */
+        myReader = null;
+    };
+
+    myReader.onerror = function() {
+        alert('myReader error')
+        alert(myReader.error.name);
+        console.log('myReader error');
+        console.log(myReader.error);
+        console.log(myReader.error.name);
+    };
 }
 
 

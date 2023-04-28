@@ -70,7 +70,8 @@ HALF_BEAT     = chr(0xBD)
 <form id="inputForm2">
 
   <label for="loadFile">Load File</label>
-  <input onclick="LoadFile()" type="file" id="loadFile" accept=".txt" name="loadFile">
+  <!-- <input onclick="LoadFile()" type="file" id="loadFile" accept=".txt" name="loadFile"> -->
+  <input onchange="LoadFile(this)" type="file" id="loadFile" accept=".txt" name="loadFile">
   <br><br>
 
   <label for="wordEntryHeader">Info</label>  
