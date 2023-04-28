@@ -53,6 +53,11 @@ HALF_BEAT     = chr(0xBD)
 <label class="playMelody"></label>   
 <button type="button" class="playMelody" onClick="PlayMelody(LineContentList)" disabled> Play Melody </button>
 
+
+<!-- =============================================== -->
+<!-- The following lines relate to word input form   --> 
+<!-- =============================================== -->
+
 <hr>
 
 <br>
@@ -80,7 +85,7 @@ HALF_BEAT     = chr(0xBD)
 
   <label for="jyutping">粵拼</label>
   <input type="text" id="jyutping" name="jyutping" value=" ">
-  <button type="button" class="formButton" id="lookupButton">Lookup</button>
+  <button type="button" onclick="ExtLookup()" class="formButton" id="extLookupButton">Lookup</button>
   <br><br>
 
   <label for="noteMelody">melody (note)</label>
@@ -108,6 +113,7 @@ HALF_BEAT     = chr(0xBD)
 </form>
 
 <script src="ClientMain.js"> </script>
+<script src="ClientForm.js"> </script>
 
 </body>
 

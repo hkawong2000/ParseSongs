@@ -39,33 +39,39 @@ function handleSubmit(event)
     // Outputs
     //     (none)
 {
-    var SongName;
-    var BeatsPerBar;
-    var BarsPerLine;
+    var SongFile;
     
     console.log('handleSubmit() called');
     event.preventDefault();
 
-    SongName = document.getElementById("songName").value;
-    outStr1  = 'Song name = ' + SongName;
-    console.log(outStr1);
-    BeatsPerBar = document.getElementById("beatsPerBar").value;
-    outStr2  = 'Beats per bar = ' + BeatsPerBar;
-    console.log(outStr2);
-    BarsPerLine = document.getElementById("barsPerLine").value;
-    outStr3  = 'Bars per Line = ' + BarsPerLine;
-    console.log(outStr3);
+    if (0)
+    {
+        var SongName;
+        var BeatsPerBar;
+        var BarsPerLine;
+
+        SongName = document.getElementById("songName").value;
+        outStr1  = 'Song name = ' + SongName;
+        console.log(outStr1);
+        BeatsPerBar = document.getElementById("beatsPerBar").value;
+        outStr2  = 'Beats per bar = ' + BeatsPerBar;
+        console.log(outStr2);
+        BarsPerLine = document.getElementById("barsPerLine").value;
+        outStr3  = 'Bars per Line = ' + BarsPerLine;
+        console.log(outStr3);
+    }
+    //
     SongFile = document.getElementById("inputFile").value;
-    outStr4  = 'input file = ' + SongFile;
-    console.log(outStr4);
     if (SongFile == '')
     {
         alert('Please select input file and press START again');
         return;
     }
-
-    // ????
-    // SaveFilePath();          
+    else
+    {
+        outStr4  = 'Song File ='+ SongFile;
+        console.log(outStr4);
+    }
 
     // Ref: https://austingil.com/upload-files-with-javascript/
     const form = event.currentTarget;
@@ -76,39 +82,3 @@ function handleSubmit(event)
     event.preventDefault();
 }
 
-
-function OpenForm()
-    // event handler for "Create input file" button
-    //
-    // Inputs
-    //     (none)
-    // Outputs
-    //     (none)
-{
-    document.getElementById("inputForm2").style.display   = "block";
-    document.getElementById("inputForm1").style.display   = "none";
-    document.getElementById("createButton").style.display = "none";
-    document.getElementById("wordEntryHeader").innerHTML  = "Hello";
-}
-
-
-function CloseForm()
-    // event handler for "Create input file" button
-    //
-    // Inputs
-    //     (none)
-    // Outputs
-    //     (none)
-{
-    document.getElementById("inputForm2").style.display   = "none";
-    document.getElementById("inputForm1").style.display   = "block";
-    document.getElementById("createButton").style.display = "block";
-}
-
-
-document.getElementById("inputForm2").style.display = "none";
-
-// Comment the following line when "create input" function is open
-// document.getElementById("createButton").style.display = "none";
-
-console.log('ClientMain.js loaded')
