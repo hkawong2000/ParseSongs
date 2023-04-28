@@ -53,7 +53,6 @@ HALF_BEAT     = chr(0xBD)
 <label class="playMelody"></label>   
 <button type="button" class="playMelody" onClick="PlayMelody(LineContentList)" disabled> Play Melody </button>
 
-
 <!-- =============================================== -->
 <!-- The following lines relate to word input form   --> 
 <!-- =============================================== -->
@@ -92,19 +91,19 @@ HALF_BEAT     = chr(0xBD)
   <input type="text" id="noteMelody" name="noteMelody" value=" ">
   <br>
   <label></label>
-  <span class="wordHint">Use # for sharp, b for flat, + for 1 octave higher, - for 1 octave lower</span>
+  <span class="wordHint">Use <span class="keychar">#</span> for sharp, <span class="keychar">b</span> for flat, <span class="keychar">+</span> for 1 octave higher, <span class="keychar">-</span> for 1 octave lower</span>
   <br><br>
 
   <label for="noteLength">length (# of beats)</label>
   <input type="text" id="noteLength" name="noteLength" value=" ">
   <br>
   <label></label>
-  <span class="wordHint">Use h for half-beat, q for quarter-beat, t for one-third-beat</span>
+  <span class="wordHint">Use <span class="keychar">h</span> for half-beat, <span class="keychar">q</span> for quarter-beat, <span class="keychar">t</span> for one-third-beat</span>
   <br><br>
 
   <label></label> 
-  <button type="button" class="formButton" id="buttonPrev">Prev</button>
-  <button type="button" class="formButton" id="buttonNext">Next</button>
+  <button type="button" onclick="GoPrev()" class="formButton" id="buttonPrev">Prev</button>
+  <button type="button" onclick="GoNext()" class="formButton" id="buttonNext">Next</button>
   <br><br>
 
   <label for="saveFile">Save File and Close Form</label>

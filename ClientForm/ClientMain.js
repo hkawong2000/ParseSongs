@@ -1,7 +1,5 @@
 // Global Variables
 
-var     UserInputList = []
-
 // =====================================================================
 
 const form1 = document.getElementById('inputForm1');

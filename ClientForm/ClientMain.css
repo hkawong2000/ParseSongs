@@ -48,6 +48,16 @@ hr
 {
     width: 75px;
 }
+#wordEntryHeader
+{
+    width: 500px;
+    background-color: #FFFFCC;
+}
+.keychar
+{
+    font-weight: bold;
+    color: #cc3300;
+}
 #buttonNext
 {
     margin-left: 100px;
@@ -57,8 +67,4 @@ hr
     font-size: 80%;
     font-family: arial;
 }
-#wordEntryHeader
-{
-    width: 500px;
-    background-color: #FFFFCC;
-}
+
