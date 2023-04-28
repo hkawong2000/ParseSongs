@@ -77,24 +77,6 @@ function handleSubmit(event)
 }
 
 
-// function SaveFilePath(input)
-//     // Function to save input file and generate name for output file
-//     //
-//     // Inputs
-//     //     input : parameter passed from HTML
-//     // Outputs
-//     //     (none)
-// {
-//     inputFile      = input.files[0];
-//     inputFileSet   = true;
-//     inputFileName  = inputFile.name;
-//     outputFileName = inputFileName.replace('.txt', '_out.html');
-//     console.log('outputFileName = ' + outputFileName);
-//     // resultButton.disabled = true;
-//     // melodyButton.disabled = true;
-// }
-
-
 function OpenForm()
     // event handler for "Create input file" button
     //

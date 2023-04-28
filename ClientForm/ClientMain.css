@@ -52,12 +52,13 @@ hr
 {
     margin-left: 100px;
 }
-#buttonClose
-{
-
-}
 .wordHint
 {
     font-size: 80%;
     font-family: arial;
+}
+#wordEntryHeader
+{
+    width: 500px;
+    background-color: #FFFFCC;
 }

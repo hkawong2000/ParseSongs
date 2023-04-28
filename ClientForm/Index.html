@@ -65,7 +65,13 @@ HALF_BEAT     = chr(0xBD)
 
 <form id="inputForm2">
 
-  <p id="wordEntryHeader"></p>
+  <label for="loadFile">Load File</label>
+  <input onclick="LoadFile()" type="file" id="loadFile" accept=".txt" name="loadFile">
+  <br><br>
+
+  <label for="wordEntryHeader">Info</label>  
+  <span id="wordEntryHeader"></span>
+  <br><br>
 
   <label for="noteWord">字 or bar</label>
   <input type="text" id="noteWord" name="noteWord" value=" ">
@@ -96,7 +102,7 @@ HALF_BEAT     = chr(0xBD)
   <button type="button" class="formButton" id="buttonNext">Next</button>
   <br><br>
 
-  <label for="inputFile">Save File and Close Form</label>
+  <label for="saveFile">Save File and Close Form</label>
   <input onclick="CloseForm()" type="file" id="saveFile" accept=".txt" name="saveFile">
   <br><br>
 </form>
