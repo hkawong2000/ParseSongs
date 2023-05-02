@@ -238,5 +238,5 @@ function ParsePostData( postStr )
 }
 
 module.exports = { ParsePostData };
-console.log('Server_ReadPostData.js loaded');
+console.log('Server_ParsePostData.js loaded');
 

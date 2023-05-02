@@ -10,6 +10,7 @@ const fs   = require('fs');
 //
 const ParsePostData = require("./Server_ParsePostData");
 const ProcessLines  = require("./Server_ProcessLines");
+const GenOutput     = require("./Server_GenOutput");
 
 // =============================================================
 
@@ -24,8 +25,12 @@ var BarsPerLine;
 var SongFile;
 var LineList;
 
+// Processed song lines
+var OutputList;
+
 // HTML code segments
 var ParamHtml;          // HTML code to report the input parameters
+var SongHtml;           // HTML code of the analysis of the song
 
 // =============================================================
 
@@ -65,6 +70,7 @@ function SendToClient ( req, res, bodyList )
 
     res.writeHead(200, {'Content-Type': 'text/html'});
     body += ParamHtml;
+    body += SongHtml;
     res.end(body);
 
     console.log('SendToClient() done');
@@ -100,7 +106,9 @@ var serverDispatcher = function( req, res )
             console.log('Finish ParsePostData()');
             ParamHtml   = GenParamHtml();
             //
-            ProcessLines.ProcessInputLines(LineList, parseInt(BeatsPerBar));
+            OutputList = ProcessLines.ProcessInputLines(LineList, parseInt(BeatsPerBar));
+            console.log('OutputList has ' + OutputList.length + ' items');
+            SongHtml = GenOutput.GenOutputTable(OutputList, BarsPerLine);
             //
             SendToClient(req, res);
             // res.end('ok');
@@ -156,5 +164,5 @@ var serverDispatcher = function( req, res )
 var server = http.createServer(serverDispatcher);
 
 server.listen(port, hostname);
-console.log(`Server running at http://${hostname}:${port}/`);
+console.log(`ServerMain running at http://${hostname}:${port}/`);
 

@@ -1,7 +1,6 @@
 // =============================================================
-// Parse input song for "Check Lyrics" program
+// Server module to process lines of the song
 // =============================================================
-
 
 var     LineContentList = [];
 var     ErrList = [];
@@ -14,16 +13,7 @@ PrevMelody = '';
 
 const CalcInterval = require("./Server_CalcInterval");
 
-// const IDX_CHI       = 0;
-// const IDX_JP        = 1;
-// const IDX_TNUM      = 2;
-// const IDX_NOTE      = 3;
-// const IDX_BEAT      = 4;
-// const IDX_WIDTH     = 5;
-// const IDX_MINT      = 6;
-// const IDX_TONE_VAL  = 7;
-// const IDX_TONE_CODE = 8; 
-
+// =============================================================
 
 function ProcessInputLine(lineNum, curLine, beatsPerBar)
     // Function to process one input line
@@ -85,7 +75,7 @@ function ProcessInputLine(lineNum, curLine, beatsPerBar)
         if (m != null)
         {
             curTone = m[1];
-            // console.log('chiWord = ' + chiWord + ', jyytping = ' + jyutping + ', curTone = ' + curTone);
+            // console.log('chiWord = ' + chiWord + ', jyutping = ' + jyutping + ', curTone = ' + curTone);
         }
         else
         {
@@ -187,6 +177,7 @@ function ProcessInputLines ( lineList, beatsPerBar )
             ProcessInputLine(lineNum, oneLine, beatsPerBar);
         }
     }
+    return(LineContentList);
 }
 
 

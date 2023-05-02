@@ -32,3 +32,66 @@ select
 {
     line-height: 1.25;
 }
+.wd /* word */
+{
+    color: black;
+}
+.jp /* Jyutping */
+{
+    color: blue;
+    font-size: 90%;
+    font-style: italic;
+}
+.me /* melody */
+{
+    color: red;
+}
+.mi /* music interval */
+{
+    color: green;
+}
+.ti /* tone interval */
+{
+    color: brown;
+    border-bottom: 2.5px solid brown;
+}
+.ti sup /* superscript text in tone interval */
+{
+    font-size: 67%;
+}
+.mismatchSameNote
+{
+    color: brown;
+}
+.mismatchSameTone
+{
+    color: goldenRod;
+}
+.halfMatch
+{
+    color: orange;
+}
+.noMatch
+{
+    color: red;
+}
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+.tooltip .tooltiptext {
+    font-size: 75%;
+    visibility: hidden;
+    width: 110px;
+    background-color: #F0F080;
+    color: black;
+    text-align: center;
+    padding: 2px 5px;
+    position: absolute;
+    z-index: 1;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
