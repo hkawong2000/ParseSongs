@@ -11,18 +11,21 @@ from tkinter.messagebox import *
 #
 sys.path.append('./ParseSongs_Util')
 from ParseSongs_Util import *
+#
+sys.path.append('./ParseSongs_ProcessReq')
+from ParseSongs_ProcessReq import *
 
 # ======
 
 FilePath    = ''        # full path of file
-BrowserPath = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
-MinNote     = ''
+BrowserPath = '''C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'''
+BrowserPath = '''C:/Program Files/Google/Chrome/Application/chrome.exe'''
 #
 QUARTER_BEAT  = chr(0xBC)
 ONETHIRD_BEAT = chr(0x2153) 
 HALF_BEAT     = chr(0xBD)
 #
-VERSION_STRING = "Version 20220107"
+VERSION_STRING = "Version 20230605"
 
 # ==============================================================
 
@@ -53,6 +56,18 @@ def SelectFile():
         FileNameLabel['borderwidth'] = 1
     # end if
 # end def SelectFile()
+
+
+def SelectEditFile():
+    """ Select file to edit
+
+    Inputs:
+        (none)
+    Outputs:
+        (none)
+    """
+    pass
+# def SelectEditFile()
 
 
 def SelectBrowserPath():
@@ -100,25 +115,23 @@ def StartClicked():
     
     songNameVal    = SongName.get()
     beatsPerBarVal = BeatsPerBar.get()
-    barsPerLineVal = BarsPerLine.get()
-    minNoteVal     = MinNoteEntry.get()
+    noteFormatVal  = NoteFormatEntry.get()
 
-    if ((FilePath == '') or (songNameVal == '') or (beatsPerBarVal == '') or (barsPerLineVal == '')) :
-        showinfo(title = 'Info', message='Please fill in the top 4 fields and provide file name')
+    if ((FilePath == '') or (songNameVal == '') or (noteFormatVal == '') or (beatsPerBarVal == '')) :
+        showinfo(title = 'Info', message='Please fill in the top 3 fields and provide file name')
         return
     # end if
 
-    if (minNoteVal == '1') :
-        unitsPerBarVal = beatsPerBarVal
-        minNoteDivVal  = 1
-    elif (minNoteVal == HALF_BEAT) :
-        unitsPerBarVal = int(beatsPerBarVal) * 2
-        minNoteDivVal  = 2
-    elif (minNoteVal == QUARTER_BEAT) :
-        unitsPerBarVal = int(beatsPerBarVal) * 4
-        minNoteDivVal  = 4
+    if (noteFormatVal == '1,2,3') :
+        noteFormat = 'N'
+    elif (noteFormatVal == 'C,D,E') :
+        noteFormat = 'A'
+    else :
+        showinfo(title = 'Info', message='noteFormat is not recognized')
+        return
     # end if
-    (code, errStr) = ParseSong(FilePath, songNameVal, minNoteDivVal, unitsPerBarVal, int(barsPerLineVal), BrowserPath)
+
+    (code, errStr) = ProcessRequest(FilePath, songNameVal, int(beatsPerBarVal), noteFormat, BrowserPath)
     if (code == 0) :
         # showinfo(title = 'Info', message='Success')
         StatusText['text'] = 'Success'
@@ -150,18 +163,15 @@ InfoFrame.pack(padx=10, pady=10, fill='x', expand=True)
 InfoFrame.columnconfigure(0, weight=1)
 InfoFrame.columnconfigure(1, weight=2)
 
-MinNoteVals = ('1', HALF_BEAT, ONETHIRD_BEAT, QUARTER_BEAT)
 if (1) :
     # DEBUG - use preset value
     SongName    = tk.StringVar(value='迷路找朋友')
     BeatsPerBar = tk.StringVar(value='4')
-    MinNote     = tk.StringVar(value=HALF_BEAT)
-    BarsPerLine = tk.StringVar(value='2')
+    NoteFormat  = tk.StringVar(value='1,2,3')
 else :
     SongName    = tk.StringVar()
     BeatsPerBar = tk.StringVar()
-    MinNote     = tk.StringVar()
-    BarsPerLine = tk.StringVar()
+    NoteFormat  = tk.StringVar()
 # end if
 
 # Song name
@@ -176,39 +186,40 @@ BeatsPerBarLabel.grid(row=1, column=0, sticky=tk.E, padx=5, pady=5)
 BeatsPerBarEntry = ttk.Entry(InfoFrame, textvariable=BeatsPerBar)
 BeatsPerBarEntry.grid(row=1, column=1, sticky=tk.EW, padx=5, pady=5)
 
-# Minimum note duration
-MinNoteLabel = ttk.Label(InfoFrame, text="Min note duration")
-MinNoteLabel.grid(row=2, column=0, sticky=tk.E, padx=5, pady=5)
-MinNoteEntry = ttk.Combobox(InfoFrame, textvariable = MinNote)
-MinNoteEntry['values'] = MinNoteVals
-MinNoteEntry['state']  = 'readonly'
-MinNoteEntry.grid(row=2, column=1, sticky=tk.EW, padx=5, pady=5)
+# Note format
+NoteFormatVals  = ('1,2,3', 'C,D,E')
+NoteFormatLabel = ttk.Label(InfoFrame, text="Note format")
+NoteFormatLabel.grid(row=2, column=0, sticky=tk.E, padx=5, pady=5)
+NoteFormatEntry = ttk.Combobox(InfoFrame, textvariable = NoteFormat)
+NoteFormatEntry['values'] = NoteFormatVals
+NoteFormatEntry['state']  = 'readonly'
+NoteFormatEntry.grid(row=2, column=1, sticky=tk.EW, padx=5, pady=5)
 
-# Bars per line
-BarsPerLineLabel = ttk.Label(InfoFrame, text="Bars per line")
-BarsPerLineLabel.grid(row=3, column=0, sticky=tk.E, padx=5, pady=5)
-BarsPerLineEntry = ttk.Entry(InfoFrame, textvariable=BarsPerLine)
-BarsPerLineEntry.grid(row=3, column=1, sticky=tk.EW, padx=5, pady=5)
-
-# File name dialogue
+# Open name dialogue
 FileButton = ttk.Button(InfoFrame, text='Open input file', command=SelectFile)
 FileButton.grid(row=4, column=0, sticky=tk.E, padx=5, pady=5)
 FileNameLabel = ttk.Label(InfoFrame, text="")
 FileNameLabel.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
 
+# File name dialogue
+EditFileButton = ttk.Button(InfoFrame, text='Edit input file', command=SelectEditFile)
+EditFileButton.grid(row=5, column=0, sticky=tk.E, padx=5, pady=5)
+EditFileNameLabel = ttk.Label(InfoFrame, text="")
+EditFileNameLabel.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+
 # Start button
 StartButton = ttk.Button(InfoFrame, text="Start", command=StartClicked)
-StartButton.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+StartButton.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Separator
 Separator = ttk.Separator(InfoFrame, orient='horizontal')
-Separator.grid(row=6, column=0, columnspan=2, pady=5, sticky='EW')
+Separator.grid(row=7, column=0, columnspan=2, pady=5, sticky='EW')
 
 # Status
 StatusLabel = ttk.Label(InfoFrame, text="Status")
-StatusLabel.grid(row=7, column=0, sticky=tk.E, padx=5, pady=5)
+StatusLabel.grid(row=8, column=0, sticky=tk.E, padx=5, pady=5)
 StatusText = ttk.Label(InfoFrame, text="unknown", foreground="blue")
-StatusText.grid(row=7, column=1, sticky=tk.EW, padx=5, pady=5)
+StatusText.grid(row=8, column=1, sticky=tk.EW, padx=5, pady=5)
 
 # Menu bar
 MenuBar = Menu(root)
