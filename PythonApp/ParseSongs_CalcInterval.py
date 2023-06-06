@@ -137,20 +137,23 @@ def Calc_MusicInterval( prevNote, curNote, noteFormat ) :
 # end def Calc_MusicInterval()
 
 
-def Gen_YiuRemark ( curWord, curTone, curMelody, code, mInterval, yKey ) :
+def Gen_YiuRemark ( prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, code, mInterval, yKey ) :
     """ Generate a remark string per theory of Yiu(2014)
     
     Inputs:
-        curWord   : current word
-        curTone   : tone of current word (numeric format, 1 to 6)
-        curMelody : melody of current word
-        code      : return code from Calc_YiuResult()
-        mInterval : interval based on melody (string format, e.g. 5/P4)
-        yKey      : key for indexing into YiuInterval dict()
+        prevWord   : previous word
+        prevTone   : tone of previous word (numeric format, 1 to 6)
+        prevMelody : melody of previous word
+        prevRest   : previous note is rest
+        curWord    : current word
+        curTone    : tone of current word (numeric format, 1 to 6)
+        curMelody  : melody of current word
+        code       : return code from Calc_YiuResult()
+        mInterval  : interval based on melody (string format, e.g. 5/P4)
+        yKey       : key for indexing into YiuInterval dict()
     Output:
         remarkStr : remark string
     """
-    global      PrevWord, PrevTone, PrevMelody, PrevRest
     global      RemarkCount
 
     # PREV_REST_VAL           = 0x100
@@ -162,14 +165,14 @@ def Gen_YiuRemark ( curWord, curTone, curMelody, code, mInterval, yKey ) :
     ToneList = ['', '(55)', '(35)', '(33)', '(21)', '(13)', '(22)']
     
     remarkItem  = [str(RemarkCount+100)[1:]]
-    remarkItem.append(PrevWord)
-    remarkItem.append(str(PrevTone) + ToneList[PrevTone])
-    remarkItem.append(PrevMelody)
+    remarkItem.append(prevWord)
+    remarkItem.append(str(prevTone) + ToneList[prevTone])
+    remarkItem.append(prevMelody)
     remarkItem.append(curWord)
     remarkItem.append(str(curTone) + ToneList[curTone])
     remarkItem.append(curMelody)
     remarkItem.append(mInterval)
-    if (PrevRest == True) :
+    if (prevRest == True) :
         remarkItem.append('Y')
     else :
         remarkItem.append('-')
@@ -212,12 +215,18 @@ def Gen_YiuRemark ( curWord, curTone, curMelody, code, mInterval, yKey ) :
     
 # end def Gen_YiuRemark()
 #
-def Calc_YiuResult( curWord, curTone, curMelody, mInterval, prevTone, prevRest ) :
+def Calc_YiuResult( curWord, curTone, curMelody, mInterval, prevWord, prevTone, prevMelody, prevRest ) :
     """ Calculate the interval between notes, based on tones and intervals suggested by Suki Yiu 2013/2014
     
     Inputs:
-        curTone   : tone of current word (numeric format, 1 to 6)
-        mInterval : interval based on melody (string format, e.g. 5/P4)
+        curWord    : current word
+        curTone    : tone of current word (numeric format, 1 to 6)
+        curMelody  : melody of current word
+        mInterval  : interval based on melody (string format, e.g. 5/P4)
+        prevWord   : previous word
+        prevTone   : tone of previous word (numeric format, 1 to 6)
+        prevMelody : melody of previous word
+        prevRest   : previous note is rest
     Output:
         (retCode, yKey, result)
             retCode = a numeric value representing the condition for match (0) and mismatch (>0)
@@ -300,7 +309,7 @@ def Calc_YiuResult( curWord, curTone, curMelody, mInterval, prevTone, prevRest )
     if (retCode != 0) :
         RemarkCount += 1
         WriteLog('new remark count = ' + str(RemarkCount))
-        Gen_YiuRemark(curWord, curTone, curMelody, retCode, mInterval, yKey)
+        Gen_YiuRemark(prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, retCode, mInterval, yKey)
         supText  = ' <sup> ' + str(RemarkCount+100)[1:] + ' </sup> '
         result  += supText
     # end if

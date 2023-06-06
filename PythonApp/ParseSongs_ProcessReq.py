@@ -99,7 +99,7 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
     if ((word != '-') and (ItemCnt > 0)) :
         # need to calculate musicInterval and toneInterval
         musicInterval     = Calc_MusicInterval(PrevMelody, melody, Song_NoteFormat)
-        (code, yiuResult) = Calc_YiuResult(word, curTone, melody, musicInterval, PrevTone, PrevRest)
+        (code, yiuResult) = Calc_YiuResult(word, curTone, melody, musicInterval, PrevWord, PrevTone, PrevMelody, PrevRest)
         WriteLog('  YiuResult : word = ' + word + ', code = ' + str(code) + ', yiuResult = ' + str(yiuResult))
     else :
         # current note is rest
@@ -133,7 +133,8 @@ def ParseSong ( inFilePath ) :
     Inputs:
         inFilePath : full path of input file
     Output:
-        (tbd)       ??????????????????????????????????????????????????????????????????????????????????
+        0 for success, <0 for failure 
+            -1 for file format error
     """
     global      RemarkCount, RemarkList
     global      Song_NoteFormat
@@ -192,6 +193,12 @@ def ParseSong ( inFilePath ) :
         WriteLog1('End - SongInfo_List\n')
     # end if
 
+    # Return value
+    if (len(ErrList) > 0) :
+        return -1
+    else :
+        return 0
+    # end if
 # end def ParseSong()
 
 
@@ -210,6 +217,7 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
             0 for success; <0 for failure
     """
     global      ErrList
+    global      RemarkCount
     global      Song_BeatsPerBar, Song_NoteFormat
 
     retVal = 0
@@ -244,13 +252,18 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
 
     # Parse input song
     SongInfo_List.clear()
-    ParseSong(inFilePath)
+    retVal1 = ParseSong(inFilePath)
+    if (retVal1 == -1) :
+        return(-1, "Input file format error")
+    # end if
 
     # Generate output HTML file
-    GenOutput(outFilePath, songName, beatsPerBar, inFileNameLast, SongInfo_List)
+    retVal2 = GenOutput(outFilePath, songName, beatsPerBar, inFileNameLast, SongInfo_List, remFilePath)
+    remarkFile = retVal2[0]
+    # end if
 
     # Open output file in browser
-    if (0) :
+    if (1) :
         sysCmd = '"' + browserPath + '" ' + re.sub('/', '\\\\', outFilePath) + ''
         WriteLog1('sysCmd = ' + sysCmd)
         os.system(sysCmd)
