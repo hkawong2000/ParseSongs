@@ -1,0 +1,71 @@
+/*********
+ .jsw file
+ *********
+
+ Backend .jsw files contain functions that run on the server side but can be called from page code and frontend files.
+ Use backend functions to keep code private and hidden from a user's browser. More info:
+
+ https://support.wix.com/en/article/velo-web-modules-calling-backend-code-from-the-frontend
+
+**********/
+
+import { mediaManager } from 'wix-media-backend';
+import { ProcessInputLines } from 'public/Server_ProcessLines.js';
+import { GenOutputTable } from 'public/Server_GenOutput.js';
+
+function GenerateInfoTable(songName, beatsPerBar, songFile) {
+    var infoHtml = '';
+
+    infoHtml += '\n<table width=100% style="background-color: #EFEFEF">\n';
+    infoHtml += '<tbody>\n';
+    infoHtml += '  <tr>\n';
+    infoHtml += '    <td class="tdint" width=15%><b>歌曲資料</b></td>\n';
+    infoHtml += '    <td class="tdint" width=85%></td>\n';
+    infoHtml += '  </tr>\n';
+    infoHtml += '  <tr>\n';
+    infoHtml += '    <td class="tdint" width=15%>歌曲名稱</td>\n';
+    infoHtml += '    <td class="tdint" width=85%>' + songName + '</td>\n';
+    infoHtml += '  </tr>\n';
+    infoHtml += '  <tr>\n';
+    infoHtml += '    <td class="tdint" width=15%>每小節拍數</td>\n';
+    infoHtml += '    <td class="tdint" width=85%>' + beatsPerBar + '</td>\n';
+    infoHtml += '  </tr>\n';
+    infoHtml += '  <tr>\n';
+    infoHtml += '    <td class="tdint" width=15%>歌曲文字檔</td>\n';
+    infoHtml += '    <td class="tdint" width=85%>' + songFile + '</td>\n';
+    infoHtml += '  </tr>\n';
+    infoHtml += '</tbody>\n';
+    infoHtml += '</table>\n';
+    return (infoHtml);
+}
+
+export function ProcessInput(songName, beatsPerBar, songFile, songText) {
+    var infoHtml = '';
+    var songHtml = '';
+    var finalHtml = '';
+    var contentLines = [];
+    var resultList = [];
+
+    console.log('Backend: ProcessInput() called');
+
+    contentLines = songText.split(/\r\n/);
+    console.log('Backend: Number of lines in input file = ' + contentLines.length);
+    // console.log('songText : {\n' + songText + '}\n');
+    resultList = ProcessInputLines(contentLines, beatsPerBar);
+    console.log('Backend: Number of entries in resultList = ' + resultList.length);
+    // console.log('resultList : {\n' + resultList + '}\n');
+
+    infoHtml = GenerateInfoTable(songName, beatsPerBar, songFile);
+    
+    let current = new Date();
+    let curTime = current.getTime();
+    songHtml = GenOutputTable(curTime, resultList, 1);
+
+    finalHtml = infoHtml + songHtml;
+    return (finalHtml);
+}
+
+export async function mediaGetFileUrl(fileUrl) {
+    return mediaManager.getFileUrl(fileUrl);
+}
+

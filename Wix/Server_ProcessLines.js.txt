@@ -1,0 +1,186 @@
+// =============================================================
+// Server module to process lines of the song
+// =============================================================
+
+var     LineContentList = [];
+var     ErrList = [];
+
+// Global variables for storing previous values
+var     PrevRest   = false;
+var     PrevWord   = '';
+var     PrevTone   = 0;
+var     PrevMelody = '';
+
+// const CalcInterval = require("public/Server_CalcInterval.js");
+import { Calc_MusicInterval } from 'public/Server_CalcInterval.js';
+import { Calc_YiuResult } from 'public/Server_CalcInterval.js';
+
+// =============================================================
+
+function ProcessOneLine(lineNum, curLine, beatsPerBar)
+    // Function to process one input line
+    //
+    // Inputs
+    //     lineNum     : line number
+    //     curLine     : content of the line
+    //     beatsPerBar : number of beats per bar, for calculating the width of one cell
+    // Outputs
+    //     (none)
+{
+    var         noteBeat;
+    var         lineNumStr;
+    var         outContent;
+    var         noteArray;
+    var         curTone;
+    var         errStr;
+    var         intMelody;
+    var         intToneVal, intToneCode;
+    var         yiuResult;
+
+    lineNumStr = (lineNum + 1000).toString().slice(1,);
+    //
+    if (curLine.trim() == '')
+    {
+        outContent = 'Line ' + lineNumStr + ' : (empty line)';
+    }
+    else if (curLine[0] == '#')
+    {
+        outContent = 'Line ' + lineNumStr + ' : (comment line)';
+    }
+    else if (curLine.substring(0,3).toLowerCase() == 'bar')
+    {
+        // Calculate whether there are enough beats ????????
+        //
+        noteArray = ['(bar)', '', 0, '', '', 0, '', '', ''];
+        LineContentList.push(noteArray);
+        outContent = 'Line ' + lineNumStr + ' : noteArray = [' + noteArray.toString() + ']';
+    }
+    else if (curLine[0] == '@')
+    {
+        // Special debug directive not open to user
+        // @A = ...
+        // @B = ...
+        // ...
+        ;
+    }
+    else
+    {
+        let lineContent = curLine.split(/\s+/);
+        if (lineContent.length < 4)
+        {
+            errStr = 'ERROR: line ' + lineNumStr + ' does not have 4 entries'
+            console.log(errStr);
+            ErrList.push(errStr);
+            return
+        }
+        //
+        let chiWord    = lineContent[0];
+        let jyutping   = lineContent[1];
+        let noteMelody = lineContent[2];
+        let noteLength = lineContent[3];
+        //
+        let m = jyutping.match(/[a-zA-Z]+([\d])/);
+        if (m != null)
+        {
+            curTone = m[1];
+        }
+        else
+        {
+            curTone = 0;
+        }
+        //
+        noteBeat = 0
+        for (let c of noteLength)
+        {
+            let c1 = c.toUpperCase();
+            if (c1 == 'Q')
+            {
+                noteBeat += 0.25;
+            }
+            else if (c1 == 'T')
+            {
+                noteBeat += 0.33;
+            }
+            else if (c1 == 'H')
+            {
+                noteBeat += 0.5;
+            }
+            else
+            {
+                noteBeat += Number(c1);
+            }             
+        }
+        let noteWidth = noteBeat * 100 / beatsPerBar;
+        // console.log('noteBeat = ' + noteBeat + ', noteWidth = ' + noteWidth + ' for word/rest ' + chiWord);
+        //
+        // Calculate melody interval
+        if ((chiWord != '-') && (PrevWord != ''))
+        {
+            intMelody   = Calc_MusicInterval(PrevMelody, noteMelody);
+            yiuResult   = Calc_YiuResult(chiWord, PrevTone, curTone, intMelody, PrevRest);
+            // [retCode, yKey, result]
+            intToneVal  = yiuResult[0];
+            intToneCode = yiuResult[1];
+            //x console.log('  > intToneVal = ' + intToneVal + ', intToneCode  = ' + intToneCode);
+        }
+        else
+        {
+            intMelody   = '-';
+            intToneVal  = -1;
+            intToneCode = '-'
+        }
+        //
+        noteArray = [chiWord, jyutping, 0, noteMelody, noteBeat, noteWidth, intMelody, intToneVal, intToneCode];
+        LineContentList.push(noteArray);
+        outContent = 'Line ' + lineNumStr + ' : noteArray = [' + noteArray.toString() + ']';
+        //
+        // Store values to Prev... variables
+        if (chiWord == '-')
+        {
+            PrevRest = true;
+        }
+        else
+        {
+            PrevRest   = false;
+            PrevWord   = chiWord;
+            PrevTone   = curTone;
+            PrevMelody = noteMelody;
+        }
+    }
+    console.log(outContent);
+}
+
+
+export function ProcessInputLines ( lineList, beatsPerBar )
+    // Function to process the complete set of lines from the input file
+    //
+    // Inputs
+    //     lineList    : the lines from the input file, one per item
+    //     beatsPerBar : number of beats per bar, for calculating the width of one cell
+    // Outputs
+    //     (none)
+{
+    var     oneLine, newLine;
+    var     fileStart = false;
+    var     lineNum   = 0;
+  
+    console.log('ProcessInputLines() called');
+
+    lineNum = 0;
+    for (let i = 0; i < lineList.length; i++)
+    {
+        lineNum++;
+        oneLine = lineList[i];
+        newLine = oneLine.trim();
+        if (newLine.length == 0)
+        {
+            continue;;
+        }
+        ProcessOneLine(lineNum, oneLine, beatsPerBar);
+    }
+    return(LineContentList);
+}
+
+// module.exports = { ProcessInputLines };
+// console.log('Server_ProcessLines.js imported');
+

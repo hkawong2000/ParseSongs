@@ -1,0 +1,57 @@
+// Filename: public/Client_Aux.js
+
+// =============================================================
+// Auxiliary functions for client side
+// =============================================================
+
+// import { fetch } from "wix-fetch";
+// import { mediaManager } from 'wix-media-backend';
+
+// Code written in public files is shared by your site's
+// Backend, page code, and site code environments.
+
+// Use public files to hold utility functions that can
+// be called from multiple locations in your site's code.
+
+import { mediaGetFileUrl } from 'backend/Backend';
+
+export function TestAux() {
+    console.log('TestAux() called');
+}
+
+export async function ReadInputFile1()
+// Read input song file into list
+//
+// Inputs
+//   (none)
+// Outputs
+//   lines of input file converted to list
+{
+    console.log('ReadInputFile1() called');
+
+    return new Promise(resolve => {
+        $w("#inputFile").uploadFiles()
+            .then((uploadedFiles) => {
+                let fileUrl0 = uploadedFiles[0].fileUrl;
+                // console.log("File url:" + fileUrl0);
+                console.log("Upload successful.");
+                mediaGetFileUrl(fileUrl0)
+                    .then((mediaUrl) => {
+                        // console.log('mediaUrl = ' + mediaUrl);
+                        console.log('mediaUrl OK');
+                        fetch(mediaUrl)
+                            .then(httpResponse => httpResponse.text())
+                            .then(text => resolve(text))
+                            .catch(error => console.log(error));
+                    });
+            })
+            .catch((uploadError) => {
+                console.log("File upload error: " + uploadError.errorCode);
+                console.log(uploadError.errorDescription);
+            });
+    })
+    // Ref-1: https://www.wix.com/velo/reference/$w/uploadbutton/uploadfiles
+    // Ref-2: https://community.wix.com/velo/forum/coding-with-velo/reading-uploaded-text-file
+
+}
+

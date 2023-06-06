@@ -1,0 +1,85 @@
+// Velo API Reference: https://www.wix.com/velo/reference/api-overview/introduction
+
+import { ProcessInput } from 'backend/Backend';
+import { TestAux } from 'public/Client_Aux.js';
+import { ReadInputFile1 } from 'public/Client_Aux.js';
+
+function VerifyFields() {
+    var mySongFile;
+
+    console.log('VerifyFields() called');
+
+    let mySongName = $w('#songName').value;
+    if (mySongName == '') {
+        console.log('SongName is not entered');
+        return (['<p class="warning">沒有輸入歌曲名稱</p>']);
+    } else {
+        console.log('SongName = ' + mySongName);
+    }
+
+    let myBeatsPerBar = $w('#beatsPerBar').value;
+    if (myBeatsPerBar == '') {
+        console.log('BeatsPerBar is not entered');
+        return (['<p class="warning">沒有輸入每小節拍數</p>']);
+    } else {
+        console.log('BeatsPerBar = ' + myBeatsPerBar);
+    }
+
+    let myInputFileVal = $w('#inputFile').value;
+    if (myInputFileVal.length < 1) {
+        console.log('SongFile is not entered');
+        return (['<p class="warning">沒有上傳歌曲文字檔</p>']);
+    } else {
+        mySongFile = myInputFileVal[0].name
+        console.log('inputFile = ' + mySongFile);
+    }
+
+    return [mySongName, myBeatsPerBar, mySongFile];
+}
+
+$w.onReady(function () {
+
+    // $w('#resultFrame').collapse();
+
+    $w('#submitSong').onClick(() => {
+        var mySongName, myBeatsPerBar, mySongFile;
+
+        console.log('submitSong clicked');
+
+        let workingHtml = '<p class="warning">處理中</p>';
+        $w("#resultFrame").postMessage(workingHtml);
+
+        // console.log('Calling TestAux()');
+        // TestAux();
+
+        let paramList = VerifyFields();
+        if (paramList.length == 1) {
+            console.log('Empty paramList');
+            let paramErrHtml = paramList[0];
+            console.log('paramErrHtml = ' + paramErrHtml);
+            // $w('#resultFrame').expand();
+            $w("#resultFrame").postMessage(paramErrHtml);
+            return;
+        } else {
+            mySongName = paramList[0];
+            myBeatsPerBar = paramList[1];
+            mySongFile = paramList[2];
+        }
+
+        ReadInputFile1().then((songText) => {
+            // console.log('songText = {\n' + songText + '\n}');
+            console.log('Calling backend function');
+            ProcessInput(mySongName, myBeatsPerBar, mySongFile, songText).then((resultHtml) => {
+                console.log('ProcessInput() returns');
+                console.log('resultHtml = {\n' + resultHtml + '\n}');
+                // $w('#resultFrame').expand();
+                $w("#resultFrame").postMessage('<p class="warning">結果準備中</p>');
+                setTimeout(() => {
+                    $w("#resultFrame").postMessage(resultHtml);
+                    console.log('Main page sent message to resultFrame');
+                }, 3000);
+            });
+        });
+    })
+});
+

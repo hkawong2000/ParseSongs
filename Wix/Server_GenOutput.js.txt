@@ -1,0 +1,148 @@
+// =============================================================
+// Server module to generate the final table
+// =============================================================
+
+// noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intTone]
+// [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TONE_VAL, IDX_TONE_CODE]
+const IDX_CHI       = 0;
+const IDX_JP        = 1;
+const IDX_TNUM      = 2;
+const IDX_NOTE      = 3;
+const IDX_BEAT      = 4;
+const IDX_WIDTH     = 5;
+const IDX_MINT      = 6;
+const IDX_TONE_VAL  = 7;
+const IDX_TONE_CODE = 8; 
+
+const CHECK_CHAR = '\u2713';
+
+const rowEndTxt     = '        </tr>\n';
+//
+const HeaderCellStart  = '    <td class="tdExt" width=15%>\n      <table class="tableInt" width=100%>\n      <tbody>\n';
+const WordHdr          = '        <tr>\n          <td class="tdInt wd"> 字 </td>\n        </tr>\n';
+const JyutPingHdr      = '        <tr>\n          <td class="tdInt tn"> 粵拼 </td>\n        </tr>\n';
+const MelodyHdr        = '        <tr>\n          <td class="tdInt ml"> &#x1D160; </td>\n        </tr>\n';
+const MusicIntervalHdr = '        <tr>\n          <td class="tdInt in"> Int-Melody </td>\n        </tr>\n';
+const ToneIntervalHdr  = '        <tr>\n          <td class="tdInt ti"> Int-Tone </td>\n        </tr>\n';
+const HeaderCellEnd    = '      </tbody>\n      </table>\n    </td>\n';
+const Column_Hdr       =   HeaderCellStart + WordHdr + JyutPingHdr + MelodyHdr + MusicIntervalHdr + ToneIntervalHdr + HeaderCellEnd;
+
+// =============================================================
+
+export function GenOutputTable ( curTime, OutputList, barsPerLine )
+    // Function to process LineContentList, which contains data read from input file
+    // 
+    // Inputs
+    //     curTime     : MM:SS of the time the program is run (for DEBUG)
+    //     OutputList  : List of processed lines for output
+    //     barsPerLine : number of bars per line
+    // Outputs
+    //     (none)
+{
+    var         j;
+    var         barState = false;       // true if inside bar
+    var         barCount = 0;           // count of bars
+    var         resBody  = '';
+    var         outStr0;
+    var         barHtml, lineHtml;
+    var         trStartTxt;
+    var         wordRow, jyutPingRow, melodyRow, intMelodyRow, intToneRow;
+    var         wordStartTxt, jyutPingStartTxt, melodyStartTxt, intMelodyStartTxt, intToneStartTxt;
+
+    console.log('GenOutputTable() called');
+    resBody = '';
+    
+    // Table
+    let tableStartStr = '\n<table width=100%>\n<tbody>\n';
+    resBody += tableStartStr;
+
+    resBody += '  <tr>\n    <td class="tdint" width=15%><b>分析結果</b></td>\n    <td class="tdint">(' + curTime + ')</td>\n  </tr>\n';
+    
+    // Write table content lines
+    let numNotes = OutputList.length;
+    console.log('numNotes = ' + numNotes);
+    //
+    let barWidth    = (85 / barsPerLine);
+    let barStartTxt = '    <td class="tdExt" width=' + barWidth.toString() +'%>\n';
+    //
+    for (j = 0; j < numNotes; j++)
+    {
+        // noteArray = [chiWord, jyutping, 0, noteMelody, noteLength, noteWidth, intMelody, intToneVal, intToneCode]
+        // [IDX_CHI, IDX_JP, IDX_TNUM, IDX_NOTE, IDX_BEAT, IDX_WIDTH, IDX_MINT, IDX_TONE_VAL, IDX_TONE_CODE]      
+        let oneNote = OutputList[j];
+        outStr0 = 'j = ' + j + ' : [' + oneNote + ']'
+        // console.log(outStr0);
+        //
+        let chiWord     = oneNote[IDX_CHI];
+        let jyutping    = oneNote[IDX_JP];
+        let noteMelody  = oneNote[IDX_NOTE];
+        let noteWidth   = oneNote[IDX_WIDTH];
+        let intMelody   = oneNote[IDX_MINT];
+        let intToneCode = oneNote[IDX_TONE_CODE];
+        //
+        if (barCount == 0)
+        {
+            lineHtml  = '  <tr>  <!-- row begin -->\n';
+            lineHtml += Column_Hdr;
+        }
+        if (barState == false)
+        {
+            barState     = true;
+            trStartTxt   = '        <tr>\n'
+            wordRow      = trStartTxt;
+            jyutPingRow  = trStartTxt;
+            melodyRow    = trStartTxt;
+            intMelodyRow = trStartTxt;
+            intToneRow   = trStartTxt; 
+        }
+        if (chiWord != '(bar)')
+        {
+            wordStartTxt       = '          <td class="tdInt wd" width=' + noteWidth.toString() +'%>';
+            wordRow           += (wordStartTxt      + chiWord     + '</td>\n');
+            jyutPingStartTxt   = '          <td class="tdInt jp" width=' + noteWidth.toString() +'%>';
+            jyutPingRow       += (jyutPingStartTxt  + jyutping    + '</td>\n');
+            melodyStartTxt     = '          <td class="tdInt me" width=' + noteWidth.toString() +'%>';
+            melodyRow         += (melodyStartTxt    + noteMelody  + '</td>\n');
+            intMelodyStartTxt  = '          <td class="tdInt mi" width=' + noteWidth.toString() +'%>';
+            intMelodyRow      += (intMelodyStartTxt + intMelody   + '</td>\n');
+            intToneStartTxt    = '          <td class="tdInt ti" width=' + noteWidth.toString() +'%>';
+            intToneRow        += (intToneStartTxt   + intToneCode + '</td>\n');
+        }
+        else
+        {
+            // end of bar, flush output to barHtml
+            // console.log('* end of bar, wordRow = ' + wordRow);
+            barHtml    = barStartTxt;
+            barHtml   += '      <table class="tableInt" width=100%>\n      <tbody>\n';
+            barHtml   += wordRow      + rowEndTxt;
+            barHtml   += jyutPingRow  + rowEndTxt;
+            barHtml   += melodyRow    + rowEndTxt;
+            barHtml   += intMelodyRow + rowEndTxt;
+            barHtml   += intToneRow   + rowEndTxt;
+            barHtml   += '      </tbody>\n      </table> <!-- tableInt -->\n';
+            barHtml   += '    </td>\n';
+            // console.log('barHtml = ' + barHtml);
+            //
+            barState  = false;
+            barCount += 1;
+            lineHtml += barHtml;
+            if (barCount == barsPerLine)
+            {
+                // console.log('* * end of line');
+                lineHtml += '  </tr> <!-- end row -->\n\n';
+                resBody  += lineHtml;
+                barCount  = 0;
+            }
+        }
+    }
+    
+    // Wrap up table and document
+    resBody += '</tbody>\n</table>\n\n<p>(end)</p>\n\n';
+    // console.log('GenOutputTable() finished');
+    // console.log(resBody);
+    return(resBody);
+}
+
+// module.exports = { GenOutputTable };
+// console.log('Server_GenOutput.js imported');
+
