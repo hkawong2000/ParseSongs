@@ -330,7 +330,6 @@ def GenOutputTable ( itemList ) :
     """ Generate song analysis part of output HTML file
     
     Inputs:
-        foH      : pointer to HTML output file
         itemList : list of items (words and rest notes) 
     Output:
         (none)
@@ -344,16 +343,29 @@ def GenOutputTable ( itemList ) :
     resBody += header2;
 
     WriteLog1('GenOutputTable() : length of itemList = ' + str(len(itemList)))
+    expertMode = int(ProcessDirective("@E", 0))
+    WriteLog1('expertMode = ' + str(expertMode))
 
     # items
     for oneNote in itemList :
         # WriteLog1('oneNote = ' + str(oneNote[:2]))
-        chiWord     = oneNote[IDX_CHI];
-        jyutping    = oneNote[IDX_JP];
-        noteMelody  = oneNote[IDX_NOTE];
-        noteWidth   = oneNote[IDX_WIDTH];
-        intMelody   = oneNote[IDX_MINT];
-        intToneText = oneNote[IDX_TONE_STR];
+        chiWord     = oneNote[IDX_CHI]
+        jyutping    = oneNote[IDX_JP]
+        noteMelody  = oneNote[IDX_NOTE]
+        noteWidth   = oneNote[IDX_WIDTH]
+        intMelody   = oneNote[IDX_MINT]
+        intToneVal  = oneNote[IDX_TONE_VAL]
+        intToneText = oneNote[IDX_TONE_STR]
+        WriteDebug(('chiWord = ' + chiWord + ', intToneVal = ' + str(intToneVal) + ', intToneText = "' + intToneText + '"'), "DA")
+        if (expertMode == 0) :
+            if ((intToneVal == 0) and (intToneText != '-')) :
+                intToneText = '&#x2713'
+            elif (intToneVal & 256) :
+                intToneText = '(p)'
+            elif (intToneVal > 0) :
+                intToneText = '<span class="noMatch tooltip"> C </span>'
+            # end if
+        # end if
         #
         if (barState == False) :
             barState  = True
@@ -410,7 +422,7 @@ def GenOutputTable ( itemList ) :
 # end def GenOutputTable()
 
 
-def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFilePath ) :
+def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFilePath, remarkList ) :
     """ Generate output HTML file
     
     Inputs:
@@ -442,9 +454,10 @@ def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFileP
     tableHtml = GenOutputTable(itemList)
     foH.write(tableHtml)
 
-    remarkLen = len(RemarkList)
+    expertMode = int(ProcessDirective("@E", 0))
+    remarkLen  = len(remarkList)
     WriteLog1('ParseSongs_GenOutput() : len of RemarkList = ' + str(remarkLen) + ' ')
-    if (remarkLen > 0):
+    if ((remarkLen > 0) and (expertMode == 1)) :
         # Generate reference to remark file
         remarkTitle  = 'Remarks for non-match words in ' + songName
         remFileName  = re.sub('\.txt$', '_Remarks.html', songFile)
@@ -452,7 +465,7 @@ def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFileP
         remStr      += '<a target="_blank" href="' + remFilePath + '"> ' + remFileName + '</a> </p>\n'
         foH.write(remStr)
         #
-        GenRemark_HTML(remFilePath, remarkTitle)
+        GenRemark_HTML(remFilePath, remarkTitle, remarkList)
         remarkGen = True
     else :
         remarkGen = False
@@ -468,17 +481,16 @@ def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFileP
 # end def GenOutput()
 
 
-def GenRemark_HTML ( remFilePath, remarkTitle ) :
+def GenRemark_HTML ( remFilePath, remarkTitle, remarkList ) :
     """ Generate remark HTML file
     
     Inputs:
         remFilePath : path to remark file, '' if no remark file is to be generated
         remarkTitle : title for remark file
+        remarkList  : list of remarks (content of the remark file)
     Output:
         (none)
     """
-    global    RemarkList
-
     # Header
     foR = open(remFilePath, 'w', encoding='utf-8')
     header2 = re.sub('RR_TITLE2', remarkTitle, REMARKS_HEADER)
@@ -486,7 +498,7 @@ def GenRemark_HTML ( remFilePath, remarkTitle ) :
     foR.write(REMARKS_TABLE_HEADER)
 
     # Body
-    for oneItem in RemarkList :
+    for oneItem in remarkList :
         foR.write('\n<tr>\n')
         outStr10 = '  <td class="top" rowspan=2> ' + oneItem[0] + ' </td>\n'            # remark idx
         foR.write(outStr10)

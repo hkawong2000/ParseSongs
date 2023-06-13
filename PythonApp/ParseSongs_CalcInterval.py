@@ -90,7 +90,6 @@ def Calc_Note( oneNote, noteFormat ) :
     Inputs:
         oneNote    : current musical note (text format) (e.g "-1")
         noteFormat : 'N' for '1,2,3'; 'A' for 'C,D,E'
-
     Output:
         numeric value of a note for interval calculation
     """
@@ -137,34 +136,45 @@ def Calc_MusicInterval( prevNote, curNote, noteFormat ) :
 # end def Calc_MusicInterval()
 
 
-def Gen_YiuRemark ( prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, code, mInterval, yKey ) :
+def Gen_YiuRemark ( prevWordInfo, curWordInfo, code, mInterval, yKey, remarkCnt ) :
     """ Generate a remark string per theory of Yiu(2014)
     
     Inputs:
-        prevWord   : previous word
-        prevTone   : tone of previous word (numeric format, 1 to 6)
-        prevMelody : melody of previous word
-        prevRest   : previous note is rest
-        curWord    : current word
-        curTone    : tone of current word (numeric format, 1 to 6)
-        curMelody  : melody of current word
-        code       : return code from Calc_YiuResult()
-        mInterval  : interval based on melody (string format, e.g. 5/P4)
-        yKey       : key for indexing into YiuInterval dict()
+        curWordInfo  : list containing information of the current word
+        prevWordInfo : list containing information of the previous word
+        code         : return code from Calc_YiuResult()
+        mInterval    : interval based on melody (string format, e.g. 5/P4)
+        yKey         : key for indexing into YiuInterval dict()
+        remarkCnt    : total count of remark up to now
+    Note on inputs:
+        Both arguments "curWordInfo" and "prevWordInfo" have the format
+            [word(s), jyutping(s), melody(s), duration(s), tone(i), rest(b)]
     Output:
-        remarkStr : remark string
+        remarkItem : item to insert into RemarkList 
     """
-    global      RemarkCount
-
     # PREV_REST_VAL           = 0x100
     # SAME_TARGET_DIFF_NOTE   = 0x01
     # DIFF_TARGET_SAME_NOTE   = 0x02
     # IN_YIU_RANGE            = 0x04
     # OUT_YIU_RANGE           = 0x08 
 
+    # <td width=n%>  #         </td>        <!-- Remark idx (0) : rowspan=2 -->
+    # <td width=n%>            </td>        <!-- prev/cur -->
+    # <td width=n%>  Word      </td>        <!-- word (1,4) -->
+    # <td width=n%>  Tone      </td>        <!-- tone (2,5)-->
+    # <td width=n%>  Melody    </td>        <!-- melody (3,6) -->
+    # <td width=n%>  MI        </td>        <!-- melody interval (7) : rowspan=2 -->  
+    # <td width=n%>  Prev Rest </td>        <!-- prevRest (8) : rowspan=2 -->  
+    # <td width=20%> Ideal MI  </td>        <!-- ideal MI (9) : rowspan=2 -->  
+    # <td>           Comment   </td>        <!-- remarks (10) : rowspan=2 -->  
+
     ToneList = ['', '(55)', '(35)', '(33)', '(21)', '(13)', '(22)']
-    
-    remarkItem  = [str(RemarkCount+100)[1:]]
+
+    (curWord,  x1, curMelody,  x2, curTone,  x3)       = curWordInfo
+    (prevWord, y1, prevMelody, y2, prevTone, prevRest) = prevWordInfo
+
+    remarkCntStr = str(remarkCnt + 100)[1:]
+    remarkItem   = [remarkCntStr]
     remarkItem.append(prevWord)
     remarkItem.append(str(prevTone) + ToneList[prevTone])
     remarkItem.append(prevMelody)
@@ -187,57 +197,44 @@ def Gen_YiuRemark ( prevWord, prevTone, prevMelody, prevRest, curWord, curTone, 
     # end if
 
     if (code & SAME_TARGET_DIFF_NOTE) :
-        remStr = '<span class="mismatchSameTone"> Same target tone for the 2 words, but different notes </span>'
+        remarkStr = '<span class="mismatchSameTone"> Same target tone for the 2 words, but different notes </span>'
     elif (code & DIFF_TARGET_SAME_NOTE) :
-        remStr = '<span class="mismatchSameNote"> Same note for the 2 words, but different target tones </span>'
+        remarkStr = '<span class="mismatchSameNote"> Same note for the 2 words, but different target tones </span>'
     elif (code & IN_YIU_RANGE) :
-        remStr = '<span class="halfMatch"> Mismatch of MI and target tone for the 2 words, yet MI is within max and min limits </span>'
+        remarkStr = '<span class="halfMatch"> Mismatch of MI and target tone for the 2 words, yet MI is within max and min limits </span>'
     elif (code & OUT_YIU_RANGE) :
-        remStr = '<span class="noMatch"> Mismatch of MI and target tone for the 2 words </span>'
+        remarkStr = '<span class="noMatch"> Mismatch of MI and target tone for the 2 words </span>'
     # end if
     if (code & PREV_REST_VAL) :
-        remStr += ' <br> but word preceded by rest'
+        remarkStr += ' <br> but word preceded by rest'
     # end if
-    remarkItem.append(remStr)
-    RemarkList.append(remarkItem)
+    remarkItem.append(remarkStr)
 
-    return(remStr)
-
-    # <td width=n%>  #         </td>        <!-- Remark idx (0) : rowspan=2 -->
-    # <td width=n%>            </td>        <!-- prev/cur -->
-    # <td width=n%>  Word      </td>        <!-- word (1,4) -->
-    # <td width=n%>  Tone      </td>        <!-- tone (2,5)-->
-    # <td width=n%>  Melody    </td>        <!-- melody (3,6) -->
-    # <td width=n%>  MI        </td>        <!-- melody interval (7) : rowspan=2 -->  
-    # <td width=n%>  Prev Rest </td>        <!-- prevRest (8) : rowspan=2 -->  
-    # <td width=20%> Ideal MI  </td>        <!-- ideal MI (9) : rowspan=2 -->  
-    # <td>           Comment   </td>        <!-- remarks (10) : rowspan=2 -->  
-    
+    return(remarkItem)
 # end def Gen_YiuRemark()
 #
-def Calc_YiuResult( curWord, curTone, curMelody, mInterval, prevWord, prevTone, prevMelody, prevRest ) :
+def Calc_YiuResult( curWordInfo, prevWordInfo, mInterval, remarkList ) :
     """ Calculate the interval between notes, based on tones and intervals suggested by Suki Yiu 2013/2014
     
     Inputs:
-        curWord    : current word
-        curTone    : tone of current word (numeric format, 1 to 6)
-        curMelody  : melody of current word
-        mInterval  : interval based on melody (string format, e.g. 5/P4)
-        prevWord   : previous word
-        prevTone   : tone of previous word (numeric format, 1 to 6)
-        prevMelody : melody of previous word
-        prevRest   : previous note is rest
+        curWordInfo  : list containing information of the current word
+        prevWordInfo : list containing information of the previous word
+        mInterval    : interval based on melody (string format, e.g. 5/P4)
+        remarkList   : list of table of remarks
+    Note on inputs:
+        Both arguments "curWordInfo" and "prevWordInfo" have the format
+            [word(s), jyutping(s), melody(s), duration(s), tone(i), rest(b)]
     Output:
-        (retCode, yKey, result)
+        (retCode, result)
             retCode = a numeric value representing the condition for match (0) and mismatch (>0)
-            yKey    = key for indexing into YiuInterval dict()
             result  = a string for inserting in HTML table
     """
-    global      RemarkCount
-
     CHECK_CHAR = '&#x2713'
     targetMap  = [0, 5, 5, 3, 1, 3, 2]
     returnCode = 0
+
+    (curWord,  x1, curMelody,  x2, curTone,  x3)       = curWordInfo
+    (prevWord, y1, prevMelody, y2, prevTone, prevRest) = prevWordInfo
     
     prevTarget = targetMap[prevTone]
     curTarget  = targetMap[curTone]
@@ -307,14 +304,16 @@ def Calc_YiuResult( curWord, curTone, curMelody, mInterval, prevWord, prevTone, 
     # end if
 
     if (retCode != 0) :
-        RemarkCount += 1
-        WriteLog('new remark count = ' + str(RemarkCount))
-        Gen_YiuRemark(prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, retCode, mInterval, yKey)
-        supText  = ' <sup> ' + str(RemarkCount+100)[1:] + ' </sup> '
-        result  += supText
+        remarkCnt  = len(remarkList) + 1
+        supText    = ' <sup> ' + str(remarkCnt+100)[1:] + ' </sup> '
+        result    += supText
+        WriteLog1('new remark count = ' + str(remarkCnt))
+        #
+        remarkItem = Gen_YiuRemark(prevWordInfo, curWordInfo, retCode, mInterval, yKey, remarkCnt)
+        #x Gen_YiuRemark(prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, retCode, mInterval, yKey)
+        remarkList.append(remarkItem)
     # end if
 
     return(retCode, result)
-
 # end def Calc_YiuResult()
 

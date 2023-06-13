@@ -13,8 +13,22 @@ sys.path.append('./ParseSongs_GenOutput')
 from ParseSongs_GenOutput import *
 
 # Globals
-ItemCnt = 0             # Number of items (words + rest-notes)
+ItemCnt = 0             # Number of items (words + rest-notes + bars)
 
+# Information from GUI/Calling program
+Song_NoteFormat  = ''
+Song_BeatsPerBar = 0
+
+# Word information
+# list of 6 items [word(s), jyutping(s), melody(s), duration(s), tone(i), rest(b)]
+CurWordInfo  = None
+PrevWordInfo = None
+
+# Parsed information of song
+SongInfo_List = list()
+
+# Remarks for (partial-)mismatches
+RemarkList = list()
 
 # ==============================================================
 # Functions to process input file
@@ -71,9 +85,8 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
     global      Song_NoteFormat
     global      SongInfo_List
     global      ErrList
-    global      PrevWord, PrevTone, PrevMelody, PrevRest
+    global      PrevWordInfo, CurWordInfo
     global      ItemCnt
-    global      RemarkCount
 
     outStr = 'ProcessOneWord() : word=' + word + ', jyutping=' + jyutping + ', melody=' + melody + ', duration=' + str(duration)
     WriteLog(outStr)
@@ -90,7 +103,12 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
         mT = re.search('[\d]', jyutping)
         if mT :
             curTone = int(mT.group(0))
+        else :
+            curTone = 0
         # end if
+        CurWordInfo = [word, jyutping, melody, duration, curTone, False]
+    else :
+        CurWordInfo = [word, jyutping, melody, duration, 0, True]
     # end if
 
     # Calculate duration of word/rest
@@ -98,8 +116,9 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
     
     if ((word != '-') and (ItemCnt > 0)) :
         # need to calculate musicInterval and toneInterval
-        musicInterval     = Calc_MusicInterval(PrevMelody, melody, Song_NoteFormat)
-        (code, yiuResult) = Calc_YiuResult(word, curTone, melody, musicInterval, PrevWord, PrevTone, PrevMelody, PrevRest)
+        prevMelody        = PrevWordInfo[2]
+        musicInterval     = Calc_MusicInterval(prevMelody, melody, Song_NoteFormat)
+        (code, yiuResult) = Calc_YiuResult(CurWordInfo, PrevWordInfo, musicInterval, RemarkList) 
         WriteLog('  YiuResult : word = ' + word + ', code = ' + str(code) + ', yiuResult = ' + str(yiuResult))
     else :
         # current note is rest
@@ -117,12 +136,13 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
     # Set PrevRest for next note
     if (word == '-') :
         # rest
-        PrevRest = True
+        PrevWordInfo[-1] = True
     else :
-        PrevRest   = False
-        PrevTone   = curTone
-        PrevMelody = melody
-        PrevWord   = word
+        # copy CurWordInfo to PrevWordInfo
+        PrevWordInfo = list()
+        for oneField in CurWordInfo :
+            PrevWordInfo.append(oneField)
+        # end for
     # end if
 # end def ProcessOneWord()
 
@@ -136,12 +156,11 @@ def ParseSong ( inFilePath ) :
         0 for success, <0 for failure 
             -1 for file format error
     """
-    global      RemarkCount, RemarkList
+    global      RemarkList
     global      Song_NoteFormat
 
     # Reset variables
-    RemarkCount = 0
-    RemarkList  = list()
+    RemarkList = list()
 
     lineNum = 0
     patWord = '[\s]*([\S]+)[\s]+([\S]+)[\s]+([\S]+)[\s]+([\S]+)'        # len(m.groups())
@@ -155,7 +174,7 @@ def ParseSong ( inFilePath ) :
         #
         elif (curLine[0] == '@') :
             # Special directives
-            pass
+            ProcessDirective(curLine.strip(), 1)
         else :
             mBar  = re.search('^bar',  curLine)
             mWord = re.search(patWord, curLine)
@@ -217,8 +236,9 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
             0 for success; <0 for failure
     """
     global      ErrList
-    global      RemarkCount
     global      Song_BeatsPerBar, Song_NoteFormat
+    global      PrevWordInfo
+    global      ItemCnt
 
     retVal = 0
     print('ProcessRequest() called')
@@ -251,15 +271,21 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
     OpenLog(logFilePath)
 
     # Parse input song
+    ItemCnt = 0
     SongInfo_List.clear()
+    RemarkList.clear()
+    PrevWordInfo = ['', '', '', '', 0, True]
+    #
     retVal1 = ParseSong(inFilePath)
     if (retVal1 == -1) :
         return(-1, "Input file format error")
     # end if
 
     # Generate output HTML file
-    retVal2 = GenOutput(outFilePath, songName, beatsPerBar, inFileNameLast, SongInfo_List, remFilePath)
-    remarkFile = retVal2[0]
+    GenOutput_retVal = GenOutput(outFilePath, songName, beatsPerBar, inFileNameLast, SongInfo_List, remFilePath, RemarkList)
+    remarkGen        = GenOutput_retVal[0]
+    if (remarkGen) :
+        WriteLog1('RemarkFile is generated')
     # end if
 
     # Open output file in browser
