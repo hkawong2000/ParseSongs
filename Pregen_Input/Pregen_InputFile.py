@@ -48,6 +48,10 @@ RootWin      = None
 # New dictionary entries
 NewDictEntryList = list()
 
+# Function for user to select input in GUI mode
+GUI_Parameters = list()
+UserChoiceG    = None       # GUI function for user to choose jyutping 
+
 # Popup window
 popupResult = [ '', [] ]
 popupEvent  = threading.Event()
@@ -56,21 +60,21 @@ popupEvent  = threading.Event()
 # Functions 
 # ------------------------------------------------------------ 
 
-def UserChoiceG ( curLine, oneChar, wordNum, entryList ) :
-    """ Let user choose Jyutping from list of characters, to be run in non-GUI mode
-    
-    Inputs:
-        curLine   : current text line
-        oneChar   : the Chinese character
-        wordNum   : word number within line (for message)
-        entryList : list containing the possible pronunciations
-    Output:
-        (none)
-    """
-    # not yet supported
-    input('Graphical support for user choice in expert mode not yet supported.  Press ENTER to continue ')
-    return
-# end def UserChoiceG()
+##def UserChoiceG ( curLine, oneChar, wordNum, entryList ) :
+##    """ Let user choose Jyutping from list of characters, to be run in non-GUI mode
+##    
+##    Inputs:
+##        curLine   : current text line
+##        oneChar   : the Chinese character
+##        wordNum   : word number within line (for message)
+##        entryList : list containing the possible pronunciations
+##    Output:
+##        (none)
+##    """
+##    # not yet supported
+##    input('Graphical support for user choice in expert mode not yet supported.  Press ENTER to continue ')
+##    return
+### end def UserChoiceG()
 
 
 def UserChoiceT ( curLine, oneChar, wordNum, entryList ) :
@@ -151,6 +155,9 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
     global      GraphicsMode
     global      MsgList
     global      NewDictEntryList
+    #
+    global      GUI_Parameters
+    global      UserChoiceG
 
     # mostLikely    (M)
     # equallyLikely (E)
@@ -205,9 +212,14 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
                         if (GraphicsMode == 0) :
                             (retVal, newEntry) = UserChoiceT(curLine, oneChar, wordNum, entry)
                         else :
-                            # (not yet supported)
-                            # UserChoiceG(curLine, oneChar, wordNum, entry)
-                            pass
+                            print('2: UserChoiceG = ' + str(UserChoiceG))
+                            (retVal, newEntry) = UserChoiceG(curLine, oneChar, wordNum, entry)
+                            if (retVal == '') :
+                                print('Hi')
+                                # function for GUI not yet written - same result as random choice
+                                retVal   = entry[0]
+                                newEntry = entry
+                            # end if
                         # end if
                         msgFull = 'U: ' + msgHdr + '用戶選擇了 "' + retVal + '" , 其他可能包括 : ' + str(newEntry[2:])
                         newDictLine = '    "' + oneChar + '" : ' + str(newEntry)
@@ -309,14 +321,14 @@ def WriteMessages ( outFile ) :
 # end def WriteMessages()
 
 
-def ProcessFile ( inFile, expertMode=0, graphicsMode=0, rootWin=None ) :
+def ProcessFile ( inFile, expertMode=0, graphicsMode=0, guiParam=None ) :
     """ Process input song file
     
     Inputs:
-        inFile         : path to input file
-        expertMode     : 1 if expert mode is used, default 0
-        graphicsMode   : 1 if graphics mode is used, default 0
-        selectFunction : function to let the user to select if graphics mode is used
+        inFile       : path to input file
+        expertMode   : 1 if expert mode is used, default 0
+        graphicsMode : 1 if graphics mode is used, default 0
+        guiParam     : parameters for GUI mode
     Output:
         (status, message))
             status  : 0 for success, >0 for failure
@@ -324,11 +336,13 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, rootWin=None ) :
     """
     global      ExpertMode
     global      GraphicsMode
-    global      GUI_SelectFunction
+    global      GUI_Parameters
+    global      UserChoiceG
 
     print('ProcessFile() called for infile ' + inFile)
-    outFile = re.sub('.txt', '_input.txt', inFile)
-    logFile = re.sub('.txt', '.log', inFile)
+    outFile  = re.sub('.txt', '_input.txt', inFile)
+    noteFile = re.sub('.txt', '_notes.txt', inFile)
+    logFile  = re.sub('.txt', '.log', inFile)
     OpenLog(logFile)
     
     # Read input list and dict
@@ -340,9 +354,10 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, rootWin=None ) :
     ExpertMode   = expertMode
     GraphicsMode = graphicsMode
     if (GraphicsMode == 1) :
-        # print('selectFunction = ' + str(selectFunction))
-        # GUI_SelectFunction = selectFunction
-        RootWin = rootWin
+        GUI_Parameters = guiParam
+        UserChoiceG    = GUI_Parameters[2]
+        #x print('GUI_Parameters = ' + str(GUI_Parameters))
+        print('1: UserChoiceG = ' + str(UserChoiceG))
     # end if
 
     lineWordCnt  = 0    # word count within one line
@@ -416,11 +431,14 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, rootWin=None ) :
         fo.flush()
     # end for curLine
 
+    # close input and output files
     fi.close()
-
     fo.write('# end of song\n\n')
     fo.flush()
     fo.close()
+
+    # Write notes file
+    WriteMessages(noteFile)
 
     FlushLog()
     CloseLog()
@@ -457,7 +475,6 @@ if __name__ == "__main__":
     # end if
     
     ProcessFile(inFile, expertMode, graphicsMode=0)
-    WriteMessages(outFile)
 
     print("\nDone")
 # end if __name__
