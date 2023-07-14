@@ -307,10 +307,9 @@ def Calc_YiuResult( curWordInfo, prevWordInfo, mInterval, remarkList ) :
         remarkCnt  = len(remarkList) + 1
         supText    = ' <sup> ' + str(remarkCnt+100)[1:] + ' </sup> '
         result    += supText
-        WriteLog1('new remark count = ' + str(remarkCnt))
+        WriteLog('new remark count = ' + str(remarkCnt))
         #
         remarkItem = Gen_YiuRemark(prevWordInfo, curWordInfo, retCode, mInterval, yKey, remarkCnt)
-        #x Gen_YiuRemark(prevWord, prevTone, prevMelody, prevRest, curWord, curTone, curMelody, retCode, mInterval, yKey)
         remarkList.append(remarkItem)
     # end if
 

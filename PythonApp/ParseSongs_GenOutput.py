@@ -342,7 +342,7 @@ def GenOutputTable ( itemList ) :
     header2 = re.sub('RR_TIME', curTime, RESULT_HEADER)
     resBody += header2;
 
-    WriteLog1('GenOutputTable() : length of itemList = ' + str(len(itemList)))
+    WriteLog('GenOutputTable() : length of itemList = ' + str(len(itemList)))
     expertMode = int(ProcessDirective("@E", 0))
     WriteLog1('expertMode = ' + str(expertMode))
 
@@ -456,7 +456,7 @@ def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFileP
 
     expertMode = int(ProcessDirective("@E", 0))
     remarkLen  = len(remarkList)
-    WriteLog1('ParseSongs_GenOutput() : len of RemarkList = ' + str(remarkLen) + ' ')
+    WriteLog('ParseSongs_GenOutput() : len of RemarkList = ' + str(remarkLen) + ' ')
     if ((remarkLen > 0) and (expertMode == 1)) :
         # Generate reference to remark file
         remarkTitle  = 'Remarks for non-match words in ' + songName

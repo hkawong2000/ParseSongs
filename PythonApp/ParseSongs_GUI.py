@@ -134,7 +134,7 @@ def StartClicked():
     (code, errStr) = ProcessRequest(FilePath, songNameVal, int(beatsPerBarVal), noteFormat, BrowserPath)
     if (code == 0) :
         # showinfo(title = 'Info', message='Success')
-        StatusText['text'] = 'Success'
+        StatusText['text'] = '成功'
     else :
         # showinfo(title = 'Info', message=errStr)
         StatusText['text'] = errStr
@@ -145,7 +145,7 @@ def StartClicked():
 
 # Root
 root = tk.Tk()
-root.title('Parse Songs')
+root.title('聲調旋律分析程式')
 root.geometry('300x300')
 root.resizable(False, False)
 root.configure(background='#b3ffb3')
@@ -174,20 +174,20 @@ else :
 # end if
 
 # Song name
-SongNameLabel = ttk.Label(InfoFrame, text="Name of Song")
+SongNameLabel = ttk.Label(InfoFrame, text="歌曲名稱")
 SongNameLabel.grid(row=0, column=0, sticky=tk.E, padx=5, pady=5)
 SongNameEntry = ttk.Entry(InfoFrame, textvariable=SongName)
 SongNameEntry.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
 
 # Units per bar
-BeatsPerBarLabel = ttk.Label(InfoFrame, text="Beats per bar")
+BeatsPerBarLabel = ttk.Label(InfoFrame, text="每小節拍數")
 BeatsPerBarLabel.grid(row=1, column=0, sticky=tk.E, padx=5, pady=5)
 BeatsPerBarEntry = ttk.Entry(InfoFrame, textvariable=BeatsPerBar)
 BeatsPerBarEntry.grid(row=1, column=1, sticky=tk.EW, padx=5, pady=5)
 
 # Note format
 NoteFormatVals  = ('1,2,3', 'C,D,E')
-NoteFormatLabel = ttk.Label(InfoFrame, text="Note format")
+NoteFormatLabel = ttk.Label(InfoFrame, text="旋律格式")
 NoteFormatLabel.grid(row=2, column=0, sticky=tk.E, padx=5, pady=5)
 NoteFormatEntry = ttk.Combobox(InfoFrame, textvariable = NoteFormat)
 NoteFormatEntry['values'] = NoteFormatVals
@@ -195,19 +195,21 @@ NoteFormatEntry['state']  = 'readonly'
 NoteFormatEntry.grid(row=2, column=1, sticky=tk.EW, padx=5, pady=5)
 
 # Open name dialogue
-FileButton = ttk.Button(InfoFrame, text='Open input file', command=SelectFile)
+FileButton = ttk.Button(InfoFrame, text='上傳歌曲文字檔', command=SelectFile)
 FileButton.grid(row=4, column=0, sticky=tk.E, padx=5, pady=5)
 FileNameLabel = ttk.Label(InfoFrame, text="")
 FileNameLabel.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
 
 # File name dialogue
-EditFileButton = ttk.Button(InfoFrame, text='Edit input file', command=SelectEditFile)
+EditFileButton = ttk.Button(InfoFrame, text='編輯歌曲文字檔', command=SelectEditFile)
 EditFileButton.grid(row=5, column=0, sticky=tk.E, padx=5, pady=5)
+EditFileButton.state(['disabled'])
+# EditFileButton.state(['!disabled'])
 EditFileNameLabel = ttk.Label(InfoFrame, text="")
 EditFileNameLabel.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Start button
-StartButton = ttk.Button(InfoFrame, text="Start", command=StartClicked)
+StartButton = ttk.Button(InfoFrame, text="提交", command=StartClicked)
 StartButton.grid(row=6, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Separator
@@ -215,9 +217,9 @@ Separator = ttk.Separator(InfoFrame, orient='horizontal')
 Separator.grid(row=7, column=0, columnspan=2, pady=5, sticky='EW')
 
 # Status
-StatusLabel = ttk.Label(InfoFrame, text="Status")
+StatusLabel = ttk.Label(InfoFrame, text="程式狀態")
 StatusLabel.grid(row=8, column=0, sticky=tk.E, padx=5, pady=5)
-StatusText = ttk.Label(InfoFrame, text="unknown", foreground="blue")
+StatusText = ttk.Label(InfoFrame, text="(未知)", foreground="blue")
 StatusText.grid(row=8, column=1, sticky=tk.EW, padx=5, pady=5)
 
 # Menu bar
@@ -225,10 +227,10 @@ MenuBar = Menu(root)
 root.config(menu=MenuBar)
 #
 ConfigMenu = Menu(MenuBar, tearoff=False)
-ConfigMenu.add_command(label="BrowserPath", command=SelectBrowserPath)
-ConfigMenu.add_command(label="Version", command=ShowVersion)
+ConfigMenu.add_command(label="瀏覽器路徑", command=SelectBrowserPath)
+ConfigMenu.add_command(label="版本", command=ShowVersion)
 #
-MenuBar.add_cascade(label="Config", menu=ConfigMenu)
+MenuBar.add_cascade(label="設定", menu=ConfigMenu)
 
 # keep the window displaying
 root.mainloop()
