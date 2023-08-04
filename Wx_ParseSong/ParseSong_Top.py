@@ -252,6 +252,7 @@ class MyFrame(wx.Frame):
             fileNameLastIdx = self.FilePath.rindex('/')
             fileNameLast    = self.FilePath[(fileNameLastIdx+1):]
             self.FileNameLabel.SetValue(fileNameLast)
+            self.StatusText.SetValue('(未知)')
         # end if
         dlg.Destroy()
     # end def SelectFile()
@@ -299,8 +300,17 @@ class MyFrame(wx.Frame):
             return
         # end if
 
-        (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
-        self.StatusText.SetValue(errStr)
+        if (1) :
+            try :
+                (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
+            except :
+                self.StatusText.SetValue('程式出現問題')
+            else :
+                self.StatusText.SetValue(errStr)
+            # end if
+        else :
+            (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
+        # end if
 
         self.FilePath = ''
         self.FileNameLabel.SetValue('')

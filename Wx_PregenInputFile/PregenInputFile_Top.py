@@ -5,6 +5,12 @@
 #
 
 import wx
+import re
+import os
+import sys
+
+sys.path.append('.')
+from Pregen_InputFile import *
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -14,6 +20,17 @@ import wx
 
 
 class MyFrame(wx.Frame):
+
+    # Class variables
+    FilePath       = ''
+    InFileName     = ''
+    VERSION_STRING = "Version 20230707"
+    
+    # Related to expert mode
+    AllowExpert = 1             # expert mode allowed
+    selectJP    = ''            # the selected Jyutping
+    newEntry    = list()        # the reordered entry list
+
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
@@ -118,24 +135,70 @@ class MyFrame(wx.Frame):
         # end wxGlade
 
     def ShowVersion(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'ShowVersion' not implemented!")
-        event.Skip()
+        outStrV = self.VERSION_STRING
+        wx.MessageBox(outStrV, 'Info', wx.OK)
+    # end def ShowVersion()
+
 
     def SelectFile(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'SelectFile' not implemented!")
-        event.Skip()
+        dlg = wx.FileDialog(
+            self, message="請選擇歌曲文字檔",
+            # defaultDir=self.currentDirectory, 
+            defaultFile="",
+            wildcard="*.txt",
+            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            paths           = dlg.GetPaths()
+            self.FilePath   = re.sub('\\\\', '/', paths[0])
+            print('self.FilePath = ' + self.FilePath)
+            fileNameLastIdx = self.FilePath.rindex('/')
+            self.InFileName = self.FilePath[(fileNameLastIdx+1):]
+            self.FileNameLabel.SetValue(self.InFileName)
+            # print('self.InFileName = ' + self.InFileName)
+        # end if
+        dlg.Destroy()
+    # end def SelectFile()
+
 
     def StartProcess(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'StartProcess' not implemented!")
-        event.Skip()
+        if (self.FilePath == '') :
+            outStr0 = '請選擇上傳檔案'
+            wx.MessageBox(outStr0, 'Info', wx.OK)
+            return
+        # end if
+
+        guiParam = [self.SelectJyutping, self.newEntry]
+        # (code, errStr) = ProcessFile(self.FilePath, expertMode=expertVal, graphicsMode=1, guiParam=guiParam)
+        (code, errStr) = ProcessFile(self.FilePath, expertMode=0, graphicsMode=1, guiParam=guiParam)
+        
+        if (code == 0) :
+            # showinfo(title = 'Info', message='Success')
+            outFile     = re.sub('.txt', '_input.txt', self.InFileName)
+            noteFile    = re.sub('.txt', '_notes.txt', self.InFileName)
+            successText = '成功 !\n結果在 : ' + outFile + '\n附注在 : ' + noteFile
+            self.StatusText.SetValue(successText)
+            #
+            self.FileNameLabel.SetValue('')
+            self.FileName = ''
+        else :
+            # showinfo(title = 'Info', message=errStr)
+            StatusText['text'] = errStr
+        # end if
+    # end def StartProcess()
+
 
     def ModeSelect(self, event):  # wxGlade: MyFrame.<event_handler>
         print("Event handler 'ModeSelect' not implemented!")
         event.Skip()
+    # end def ModeSelect()
+
 
     def SelectJyutping(self, event):  # wxGlade: MyFrame.<event_handler>
         print("Event handler 'SelectJyutping' not implemented!")
         event.Skip()
+    # end def SelectJyutping()
+
 
 # end of class MyFrame
 

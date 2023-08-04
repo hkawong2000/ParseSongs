@@ -360,7 +360,7 @@ def GenOutputTable ( itemList ) :
         if (expertMode == 0) :
             if ((intToneVal == 0) and (intToneText != '-')) :
                 intToneText = '&#x2713'
-            elif (intToneVal & 256) :
+            elif ((intToneVal & PREV_REST_VAL) or (intToneVal & IN_YIU_RANGE)) :
                 intToneText = '(p)'
             elif (intToneVal > 0) :
                 intToneText = '<span class="noMatch tooltip"> C </span>'

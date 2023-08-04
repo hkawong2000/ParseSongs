@@ -29,6 +29,9 @@ SongInfo_List = list()
 # Remarks for (partial-)mismatches
 RemarkList = list()
 
+# First word of song
+FirstWord = True
+
 # ==============================================================
 # Functions to process input file
 # ==============================================================
@@ -46,7 +49,7 @@ def Check_Beats ( opt ) :
     global      BeatsInBar
     
     totalBeats = BeatsInBar[0] + (BeatsInBar[1]/3)
-    WriteLog('@ beatsInBar = ' + str(totalBeats))
+    WriteLog('  @ beatsInBar = ' + str(totalBeats))
     if (opt == 0) :
         if (totalBeats > Song_BeatsPerBar) :
             return(-1)
@@ -79,15 +82,20 @@ def Calc_Duration(durationStr, beatsPerBar) :
     for c in durationStr :
         if (not(c in allowedChar)) :
             # error
-            return(-1, '拍數格式有問題')
+            return(-1, '拍數 ' + durationStr + ' 格式有問題')
         # end if
     # end for
     
     mNum = re.search('^[0-9.]+$', durationStr)
     if mNum :
         # is a pure number (float or int)
-        durTotal       = float(durationStr)
-        BeatsInBar[0] += durTotal
+        try :
+            durTotal = float(durationStr)
+        except :
+            return(-1, '拍數 ' + durationStr + ' 格式有問題')
+        else :
+            BeatsInBar[0] += durTotal
+        # end if
     else :
         durTotal = 0
         for c in durationStr :
@@ -139,6 +147,7 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
     global      PrevWordInfo, CurWordInfo
     global      ItemCnt
     global      BeatsInBar
+    global      FirstWord
 
     outStr = 'ProcessOneWord() : word=' + word + ', jyutping=' + jyutping + ', melody=' + melody + ', duration=' + str(duration)
     WriteLog(outStr)
@@ -176,13 +185,13 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
         return['ERR', spanWidth]
     # end if
     
-    if ((word != '-') and (ItemCnt > 0)) :
+    if ((word != '-') and (ItemCnt > 0) and (FirstWord == False)) :
         # need to calculate musicInterval and toneInterval
         prevMelody        = PrevWordInfo[2]
         musicInterval     = Calc_MusicInterval(prevMelody, melody, Song_NoteFormat)
         if (musicInterval[:3] == 'ERR') :
             # error in formatting
-            return(['ERR', '旋律格式有問題'])
+            return(['ERR', '旋律 ' + melody + ' 格式有問題'])
         # end if
         (code, yiuResult) = Calc_YiuResult(CurWordInfo, PrevWordInfo, musicInterval, RemarkList) 
         WriteLog('  YiuResult : word = ' + word + ', code = ' + str(code) + ', yiuResult = ' + str(yiuResult))
@@ -209,8 +218,10 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
         for oneField in CurWordInfo :
             PrevWordInfo.append(oneField)
         # end for
+        FirstWord = False
     # end if
     
+    FlushLog()
     return(noteArray)
 # end def ProcessOneWord()
 
@@ -226,11 +237,15 @@ def ParseSong ( inFilePath ) :
                         -1 for file format error
             errStr  : a string describing the error
     """
+    global      BeatsInBar
     global      RemarkList
     global      Song_NoteFormat
+    global      FirstWord
 
     # Reset variables
+    BeatsInBar = [0, 0]
     RemarkList = list()
+    FirstWord  = True
 
     lineNum = 0
     patWord = '[\s]*([\S]+)[\s]+([\S]+)[\s]+([\S]+)[\s]+([\S]+)'        # len(m.groups())

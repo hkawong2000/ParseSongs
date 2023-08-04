@@ -104,7 +104,7 @@ def Calc_Note( oneNote, noteFormat ) :
     for c in oneNote :
         if (not(c in allowedChar)) :
             # error
-            return(-1)
+            return(-99)
         # end if
     # end for    
     
@@ -121,9 +121,11 @@ def Calc_Note( oneNote, noteFormat ) :
     # end if
 
     if (noteFormat == 'N') :
-        return(Dict_Notes[note1] + octaveInc)
+        retVal = Dict_Notes[note1] + octaveInc
+        return(retVal)
     else :
-        return(Dict_Notes_Alpha[note1.upper()] + octaveInc)
+        retVal = Dict_Notes_Alpha[note1.upper()] + octaveInc
+        return(retVal)
     # end if
 # end def Calc_Note()
 #
@@ -139,8 +141,8 @@ def Calc_MusicInterval( prevNote, curNote, noteFormat ) :
     """
     note1 = Calc_Note(prevNote, noteFormat)
     note2 = Calc_Note(curNote, noteFormat)
-    if (note2 == -1) :
-        return('ERR/旋律格式有問題')
+    if (note2 == -99) :
+        return('ERR/旋律 ' + curNote + ' 格式有問題')
     # end if
     
     noteDiff = abs(note1 - note2)
@@ -318,7 +320,7 @@ def Calc_YiuResult( curWordInfo, prevWordInfo, mInterval, remarkList ) :
                 result  = '<span class="noMatch tooltip"> (X-p) <span class="tooltiptext"> Non-match after rest </span> </span>'
             else :
                 retCode = OUT_YIU_RANGE
-                result  = '<span class="noMatch tooltip"> (X) <span class="tooltiptext"> Non-match after rest </span> </span>'
+                result  = '<span class="noMatch tooltip"> (X) <span class="tooltiptext"> Non-match </span> </span>'
         # end if
     # end if
 

@@ -1,0 +1,136 @@
+import re
+import os
+import sys
+
+# ============================================================================== 
+
+    # Class variables
+    FilePath    = ''
+    #
+#x  BrowserPath = '''C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'''
+    BrowserPath = '''C:/Program Files/Google/Chrome/Application/chrome.exe'''
+    EditorPath  = '''C:/Windows/System32/notepad.exe'''
+    #
+    VERSION_STRING = "Version 20230801"
+    
+# ============================================================================== 
+    
+    def SelectBrowserPath(self, event):  # wxGlade: MyFrame.<event_handler>
+        dlg = wx.FileDialog(
+            self, message="請選擇文字編輯器路徑",
+            # defaultDir=self.currentDirectory, 
+            defaultFile=self.EditorPath,
+            wildcard="*.exe",
+            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
+            )
+        if (dlg.ShowModal() == wx.ID_OK) :
+            self.BrowserPath = dlg.GetPaths()[0]
+            outStrB = 'BrowserPath set to ' + self.BrowserPath
+            wx.MessageBox(outStrB, 'Info', wx.OK)
+        # end if
+        dlg.Destroy()
+    # end def SelectBrowserPath()
+
+
+    def SelectEditorPath(self, event):  # wxGlade: MyFrame.<event_handler>
+        dlg = wx.FileDialog(
+            self, message="請選擇文字編輯器路徑",
+            # defaultDir=self.currentDirectory, 
+            defaultFile=self.EditorPath,
+            wildcard="*.exe",
+            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
+            )
+        if (dlg.ShowModal() == wx.ID_OK) :
+            self.EditorPath = dlg.GetPaths()[0]
+            outStrE = 'EditorPath set to ' + self.EditorPath
+            wx.MessageBox(outStrE, 'Info', wx.OK)
+        # end if
+        dlg.Destroy()
+    # end def SelectEditorPath()
+
+    
+    def ShowVersion(self, event):  # wxGlade: MyFrame.<event_handler>
+        outStrV = self.VERSION_STRING
+        wx.MessageBox(outStrV, 'Info', wx.OK)
+    # end def ShowVersion()
+
+
+    def SelectFile(self, event):  # wxGlade: MyFrame.<event_handler>
+        dlg = wx.FileDialog(
+            self, message="請選擇歌曲文字檔",
+            # defaultDir=self.currentDirectory, 
+            defaultFile="",
+            wildcard="*.txt",
+            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
+            )
+        if dlg.ShowModal() == wx.ID_OK:
+            paths           = dlg.GetPaths()
+            self.FilePath   = re.sub('\\\\', '/', paths[0])
+            print('self.FilePath = ' + self.FilePath)
+            fileNameLastIdx = self.FilePath.rindex('/')
+            fileNameLast    = self.FilePath[(fileNameLastIdx+1):]
+            self.FileNameLabel.SetValue(fileNameLast)
+            self.StatusText.SetValue('(未知)')
+        # end if
+        dlg.Destroy()
+    # end def SelectFile()
+
+
+    def EditFile(self, event):  # wxGlade: MyFrame.<event_handler>
+        sysCmd = '"' + self.EditorPath + '" ' + re.sub('/', '\\\\', self.FilePath) + ''
+        print('sysCmd = ' + sysCmd)
+        os.system(sysCmd)
+    # end def EditFile()
+    
+    
+    def StartClicked(self, event):  # wxGlade: MyFrame.<event_handler>
+        songNameVal    = self.SongNameEntry.GetValue()
+        beatsPerBarVal = self.BeatsPerBarEntry.GetValue()
+        noteFormatVal  = self.NoteFormatEntry.GetValue()
+
+        if (songNameVal == '') :
+            outStr0 = '請填寫歌名欄'
+            wx.MessageBox(outStr0, 'Info', wx.OK)
+            return
+        # end if
+        if (beatsPerBarVal == '') :
+            outStr0 = '請填寫每小節拍數欄'
+            wx.MessageBox(outStr0, 'Info', wx.OK)
+            return
+        # end if
+        if (noteFormatVal == '') :
+            outStr0 = '請填寫旋律格式欄'
+            wx.MessageBox(outStr0, 'Info', wx.OK)
+            return
+        # end if
+        if (self.FilePath == '') :
+            outStr0 = '請選擇上傳歌曲'
+            wx.MessageBox(outStr0, 'Info', wx.OK)
+            return
+        # end if
+
+        if (noteFormatVal == '1,2,3') :
+            noteFormat = 'N'
+        elif (noteFormatVal == 'C,D,E') :
+            noteFormat = 'A'
+        else :
+            showinfo(title = 'Info', message='noteFormat is not recognized')
+            return
+        # end if
+
+        if (1) :
+            try :
+                (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
+            except :
+                self.StatusText.SetValue('程式出現問題')
+            else :
+                self.StatusText.SetValue(errStr)
+            # end if
+        else :
+            (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
+        # end if
+
+        self.FilePath = ''
+        self.FileNameLabel.SetValue('')
+    # end def StartClicked()
+

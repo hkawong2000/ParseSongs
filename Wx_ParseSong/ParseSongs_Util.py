@@ -137,6 +137,17 @@ def WriteLog2 ( logStr ) :
     fLog.flush()
 # end def WriteLog2()
 #
+def FlushLog () :
+    """ Flush to the log file
+
+    Inputs:
+        (none)
+    Output:
+        (none)
+    """
+    fLog.flush()
+# end def FlushLog()
+#
 def CloseLog () :
     """ Flush and close the log file
 
