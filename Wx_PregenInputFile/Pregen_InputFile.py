@@ -11,19 +11,9 @@ import sys
 import time
 import string
 import threading
-# import shutil
-#
-sys.path.append('C:/Python_Lib/WriteLog')
-from WriteLog import *
 #
 sys.path.append('.')
 from CantoneseDict import *
-#
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog as fd
-from tkinter.messagebox import *
 
 # List for logging messages
 PrevMsgLine = -1
@@ -74,7 +64,7 @@ def UserChoiceT ( curLine, oneChar, wordNum, entryList ) :
     global      PrevChoiceDict
     global      NewDictEntryList
 
-    lineOut  = '\n* 在這行中的 "' + oneChar + '" 字 : '
+    lineOut  = '\n* 在這行中的 「' + oneChar + '」 字 : '
     lineOut += curLine[:(wordNum-1)] + ' [' + oneChar + '] ' + curLine[wordNum:].strip()
     print(lineOut)
     #
@@ -117,6 +107,23 @@ def UserChoiceT ( curLine, oneChar, wordNum, entryList ) :
 # end def UserChoiceT()
 
 
+def FormatQuotes ( inStr ) :
+    """ Format quotes for English quotes to use Chinese quotes 「」
+    
+    Inputs:
+        inStr : input string
+    Output:
+        outStr : output string
+    """
+    outStr1 = re.sub("'([a-z])", "「\\1", inStr)
+    outStr2 = re.sub("([\d])'",  "\\1」", outStr1)
+    outStr3 = re.sub('\[', '', outStr2)
+    outStr4 = re.sub('\]', '', outStr3)
+    outStr  = outStr4
+    return(outStr)
+# end def FormatQuotes()
+
+
 def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
     """ Lookup Jyutping of one single character
     
@@ -151,9 +158,9 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
 
     #x print('    oneChar = ' + oneChar)
     if (lineNum == PrevMsgLine) :
-        msgHdr = '第' + str(lineNum) + '行 第' + str(wordNum) + '個字 "' + oneChar + '" - '
+        msgHdr = '第' + str(lineNum) + '行 第' + str(wordNum) + '個字 「' + oneChar + '」 - '
     else :
-        msgHdr = '第' + str(lineNum) + '行 <' + curLine + '> 第' + str(wordNum) + '個字 "' + oneChar + '" - '
+        msgHdr = '第' + str(lineNum) + '行 「' + curLine + '」 第' + str(wordNum) + '個字 「' + oneChar + '」 - '
     # end if
     #
     try :
@@ -166,7 +173,7 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
             return('?')
         else :
             # Enter Jyutping manually
-            lineOut  = '\n* 在這行中的 "' + oneChar + '" 字 : '
+            lineOut  = '\n* 在這行中的 「' + oneChar + '」 字 : '
             lineOut += curLine[:(wordNum-1)] + ' [' + oneChar + '] ' + curLine[wordNum:].strip()
             print(lineOut)
             #
@@ -187,23 +194,23 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
             if (oneChar in MsgWordList) :
                 # remember choice from before
                 retVal  = PrevChoiceDict[oneChar]
-                msgFull = 'P: ' + msgHdr + '(前面已提過)'
+                msgFull = 'P: ' + msgHdr + '(請參見前文)'
                 MsgList.append(msgFull)
                 return(retVal)
             else :
                 if (entry[0] == '*') :
                     # more than one jyutping, but the first choice is most likely
-                    msgFull = 'M: ' + msgHdr + '最可能是 "' + entry[1] + '" , 但仍有其他可能 : ' + str(entry[2:])
+                    msgFull = 'M: ' + msgHdr + '最可能是 「' + entry[1] + '」 , 但仍有其他可能 : ' + FormatQuotes(str(entry[2:]))
                     retVal  = entry[1] + '*'
                 elif (entry[0] == '@') :
                     # more than one jyutping, but there are choices that are equally likely;
                     # in this case, the first choice is provided to the user
-                    msgFull = 'E: ' + msgHdr + '有可能是 "' + entry[1] + '" , 但亦有其他可能 : ' + str(entry[2:])
+                    msgFull = 'E: ' + msgHdr + '有可能是 「' + entry[1] + '」 , 但亦有其他可能 : ' + FormatQuotes(str(entry[2:]))
                     retVal  = entry[1] + '@'
                 else :
                     # more than one jyutping, let user choose which one to use
                     if (ExpertMode == 0) :
-                        msgFull = 'R: ' + msgHdr + '隨機選擇了 "' + entry[0] + '" , 其他可能包括 : ' + str(entry[1:])
+                        msgFull = 'R: ' + msgHdr + '隨機選擇了 「' + entry[0] + '」 , 其他可能包括 : ' + FormatQuotes(str(entry[1:]))
                         retVal  = entry[0] + '?'
                     else :
                         # Expert mode
@@ -219,8 +226,8 @@ def LookupJyutping ( curLine, oneChar, lineNum, wordNum ) :
                                 newEntry = entry
                             # end if
                         # end if
-                        msgFull = 'U: ' + msgHdr + '用戶選擇了 "' + retVal + '" , 其他可能包括 : ' + str(newEntry[2:])
-                        newDictLine = '    "' + oneChar + '" : ' + str(newEntry)
+                        msgFull = 'U: ' + msgHdr + '用戶選擇了 「' + retVal + '」 , 其他可能包括 : ' + FormatQuotes(str(entry[2:]))
+                        newDictLine = '    「' + oneChar + '」 : ' + str(newEntry)
                         #x print('  new dict line = ' + newDictLine)
                         NewDictEntryList.append(newDictLine)
                     # end if (ExpertMode)
@@ -351,7 +358,6 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, guiParam=None ) :
     outFile  = re.sub('.txt', '_input.txt', inFile)
     noteFile = re.sub('.txt', '_notes.txt', inFile)
     logFile  = re.sub('.txt', '.log', inFile)
-    OpenLog(logFile)
     
     MsgWordList      = list()
     PrevChoiceDict   = dict()
@@ -364,7 +370,7 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, guiParam=None ) :
         inDict = 'CantoneseDict.txt'
         exec(open(inDict, encoding='utf-8').read())
     # end if
-    WriteLog1('Initially, WordListDict has ' + str(len(WordListDict)) + ' items')
+    print('Initially, WordListDict has ' + str(len(WordListDict)) + ' items')
 
     ExpertMode   = expertMode
     GraphicsMode = graphicsMode
@@ -393,15 +399,15 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, guiParam=None ) :
             fo.write(curLine)
             continue
         # end if
-        WriteLog1('\nLine ' + str(lineNum+1000)[1:] + ' : ' + curLine.strip())
+        print('\nLine ' + str(lineNum+1000)[1:] + ' : ' + curLine.strip())
         #
         grpList = (curLine.strip()).split()
-        WriteLog('\nLine ' + str(lineNum+1000)[1:] + ' : wordList = ' + str(grpList))
+        print('\nLine ' + str(lineNum+1000)[1:] + ' : wordList = ' + str(grpList))
         grpCnt = 0
         grpNum = len(grpList)
         for oneGrp in grpList :
             grpCnt += 1
-            WriteLog('  oneGrp = ' + oneGrp)
+            print('  oneGrp = ' + oneGrp)
             charList = list(oneGrp)
             for oneChar in charList :
                 if ((ord(oneChar) < 0x4E00) or (ord(oneChar) >= 0xA000)) :
@@ -454,43 +460,7 @@ def ProcessFile ( inFile, expertMode=0, graphicsMode=0, guiParam=None ) :
 
     # Write notes file
     WriteMessages(noteFile)
-
-    FlushLog()
-    CloseLog()
     
     return(0, '')
 # end def ProcessFile()
-
-# ==============================================================================
-    
-#x  # main()
-#x  if __name__ == "__main__":
-#x  
-#x      # Input file
-#x      inFile = input('Input lyrics file: ')
-#x      if (os.path.exists(inFile)) :
-#x          outFile = re.sub('.txt', '_Notes.txt', inFile)
-#x      else :
-#x          outStr = 'File "' + inFile + '" cannot be found, program exits'
-#x          print(outStr)
-#x          sys.exit(0)
-#x      # end if
-#x  
-#x      # Expert mode
-#x      AllowExpertMode = 1
-#x      if (AllowExpertMode) :
-#x          rsp1 = input('Run program in expert mode? (Y or N) ')
-#x          if (rsp1.upper() == 'Y') :
-#x              expertMode = 1
-#x          else :
-#x              expertMode = 0
-#x          # end if
-#x      else :
-#x          expertMode = 0
-#x      # end if
-#x      
-#x      ProcessFile(inFile, expertMode, graphicsMode=0)
-#x  
-#x      print("\nDone")
-#x  # end if __name__
 

@@ -78,7 +78,7 @@ def Calc_Duration(durationStr, beatsPerBar) :
     global      BeatsInBar
 
     # Check if format is valid
-    allowedChar = '0123456789.HhTtQq'
+    allowedChar = '0123456789.'
     for c in durationStr :
         if (not(c in allowedChar)) :
             # error
@@ -89,12 +89,20 @@ def Calc_Duration(durationStr, beatsPerBar) :
     mNum = re.search('^[0-9.]+$', durationStr)
     if mNum :
         # is a pure number (float or int)
-        try :
-            durTotal = float(durationStr)
-        except :
-            return(-1, '拍數 ' + durationStr + ' 格式有問題')
+        if (durationStr == '0.33') :
+            BeatsInBar[1] += 1
+            durTotal       = 0.333
+        elif (durationStr == '0.66') :
+            durTotal       = 0.666
+            BeatsInBar[1] += 2
         else :
-            BeatsInBar[0] += durTotal
+            try :
+                durTotal = float(durationStr)
+            except :
+                return(-1, '拍數 ' + durationStr + ' 格式有問題')
+            else :
+                BeatsInBar[0] += durTotal
+            # end if
         # end if
     else :
         durTotal = 0
@@ -308,7 +316,7 @@ def ParseSong ( inFilePath ) :
     if (len(ErrList) > 0) :
         return (-1, "歌曲文字檔形式要修正")
     else :
-        return (0, "成功")
+        return (0, "輸出檔案已生成")
     # end if
 # end def ParseSong()
 
@@ -352,7 +360,7 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
     remFileFolder = inFileFolder
     remFilePath   = remFileFolder + re.sub('\.txt$', '_Remarks.html', inFileNameLast)
     if (os.path.exists(outFilePath)) :
-        askStr    = '輸出檔案 "' + outFilePath + '" 已存在\n要不要舊的結果被新的結果取代?\n如果不想的話, 請把原來的檔案更名或備份'
+        askStr    = '輸出檔案 "' + outFilePath + '" 已存在。\n是否以新的結果取代舊的結果？\n若否，請將原來的檔案重新命名或備份。'
         # (following lines for Tk)
         # overWrite = askyesno(title='Warning', message=askStr)
         # if (overWrite == False) :

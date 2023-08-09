@@ -42,9 +42,9 @@ class MyFrame(wx.Frame):
         # Menu Bar
         self.frame_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
-        item = wxglade_tmp_menu.Append(wx.ID_ANY, "Version", "")
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, "版本", "")
         self.Bind(wx.EVT_MENU, self.ShowVersion, item)
-        self.frame_menubar.Append(wxglade_tmp_menu, "Config")
+        self.frame_menubar.Append(wxglade_tmp_menu, "設定")
         self.SetMenuBar(self.frame_menubar)
         # Menu Bar end
 
@@ -199,7 +199,6 @@ class MyFrame(wx.Frame):
         event.Skip()
     # end def SelectJyutping()
 
-
 # end of class MyFrame
 
 class Pregen_InputFile(wx.App):
@@ -214,3 +213,4 @@ class Pregen_InputFile(wx.App):
 if __name__ == "__main__":
     Pregen_InputFile = Pregen_InputFile(0)
     Pregen_InputFile.MainLoop()
+

@@ -178,12 +178,12 @@ class MyFrame(wx.Frame):
         sizer_8 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_1.Add(sizer_8, 1, wx.EXPAND, 0)
 
-        StatusLabel = wx.StaticText(self.panel_1, wx.ID_ANY, u"程式狀態")
+        StatusLabel = wx.StaticText(self.panel_1, wx.ID_ANY, u"執行狀況")
         StatusLabel.SetForegroundColour(wx.Colour(0, 0, 255))
         StatusLabel.SetFont(wx.Font(16, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
         sizer_8.Add(StatusLabel, 2, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.LEFT | wx.TOP, 15)
 
-        self.StatusText = wx.TextCtrl(self.panel_1, wx.ID_ANY, u"(未知)", style=wx.TE_READONLY)
+        self.StatusText = wx.TextCtrl(self.panel_1, wx.ID_ANY, u"(未上傳檔案)", style=wx.TE_READONLY)
         sizer_8.Add(self.StatusText, 8, wx.ALL, 15)
 
         sizer_1.Add((0, 0), 0, 0, 0)
@@ -252,7 +252,7 @@ class MyFrame(wx.Frame):
             fileNameLastIdx = self.FilePath.rindex('/')
             fileNameLast    = self.FilePath[(fileNameLastIdx+1):]
             self.FileNameLabel.SetValue(fileNameLast)
-            self.StatusText.SetValue('(未知)')
+            self.StatusText.SetValue('(未執行)')
         # end if
         dlg.Destroy()
     # end def SelectFile()

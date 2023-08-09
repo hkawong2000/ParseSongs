@@ -1,6 +1,10 @@
 import re
 import os
 import sys
+#
+sys.path.append('.')
+from ParseSongs_Util import *
+from ParseSongs_ProcessReq import *
 
 # ============================================================================== 
 
@@ -70,7 +74,7 @@ import sys
             fileNameLastIdx = self.FilePath.rindex('/')
             fileNameLast    = self.FilePath[(fileNameLastIdx+1):]
             self.FileNameLabel.SetValue(fileNameLast)
-            self.StatusText.SetValue('(未知)')
+            self.StatusText.SetValue('(未執行)')
         # end if
         dlg.Destroy()
     # end def SelectFile()
