@@ -330,7 +330,7 @@ def GenOutputTable ( itemList ) :
     """ Generate song analysis part of output HTML file
     
     Inputs:
-        itemList : list of items (words and rest notes) 
+        itemList : list of items (words, rest notes and bar) 
     Output:
         (none)
     """
@@ -431,7 +431,8 @@ def GenOutput ( outFilePath, songName, beatsPerBar, songFile, itemList, remFileP
         beatsPerBar : beats per bar as entered by user
         songFile    : file name containing the information of the song
         itemList    : list of the analysis result of the song
-        remFilePath : path to remark file, '' if no remark file is to be generated
+        remFilePath : path to remark file, '' if no remark file is to be generated (for expert mode)
+        remarkList  : list of remarks (for expert mode)
     Output:
         [remarkFile] :
             remarkFile is True if remark file is generated, False otherwise

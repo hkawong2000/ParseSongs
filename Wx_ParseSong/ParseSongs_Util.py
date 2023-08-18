@@ -29,24 +29,40 @@ fLog = None
 ErrList = list()
 
 # Directives
+# key is directive name, val is directive setting (current value, default value)
 DirectiveDict = {
-#   "DX" : "3",         # debug (flag 1 to print debug message to console, flag 2 to write to log file) 
-    "DA" : "0",         # debug msg grp A 
-    "DB" : "0",         # debug msg grp B 
-    "DC" : "0",         # debug msg grp C 
-    "DD" : "0",         # debug msg grp D 
-    "E"  : "0",         # expert mode (error presented in detail)
-    "L"  : "1",         # create log file
-    "X"  : "0",         # ...
+#   "DX" : [ "3", "0", ],        # debug (flag 1 to print debug message to console, flag 2 to write to log file) 
+    "DA" : [ "0", "0", ],        # debug msg grp A 
+    "DB" : [ "0", "0", ],        # debug msg grp B 
+    "DC" : [ "0", "0", ],        # debug msg grp C 
+    "DD" : [ "0", "0", ],        # debug msg grp D 
+    "E"  : [ "0", "0", ],        # expert mode (error presented in detail)
+    "L"  : [ "1", "1", ],        # create log file
+    "X"  : [ "0", "0", ],        # ...
 }
 
 # ==============================================================
+
+def InitDirectives () :
+    """ Initial directives to default values
+    Inputs:
+        (none)
+    Output:
+        (none)
+    """
+    for (key, val) in DirectiveDict.items() :
+        newVal             = [ val[1], val[1] ]
+        DirectiveDict[key] = newVal
+    # end for
+# end def InitDirectives()
+
 
 def ProcessDirective( dirStr, op ) :
     """ Set or get directive
 
     Inputs:
-        dirStr : directive string (format : @A... : begins @, followed by 1 or more alphabet, optionally followed by any non-space string)
+        dirStr : directive string 
+                 (format : @A... : begins @, followed by 1 or more alphabet, optionally followed by any non-space string)
         op     : 1 for set, 0 for read
     Output:
         (retCode, string)
@@ -68,11 +84,13 @@ def ProcessDirective( dirStr, op ) :
             # dirLetter does not exist in dictionary
             return(-1, "directive does not exist")
         else :
-            return val
+            return val[0]
         # end try
     elif (op == 1) :
         # set
-        DirectiveDict[dirLetter] = dirArg
+        val    = DirectiveDict[dirLetter]
+        val[0] = dirArg
+        DirectiveDict[dirLetter] = val
     else :
         # invalid op
         pass
@@ -165,7 +183,7 @@ def WriteDebug ( logStr, directive ) :
     """ Write/log debug message per setting of the given directive
 
     Inputs:
-        logStr : string to write
+        logStr    : string to write
         directive : debug directive
     Output:
         (none)

@@ -146,7 +146,7 @@ def ProcessOneWord ( word, jyutping, melody, duration ) :
         duration : duration of the word (int)
     NOTE:
         list of info for the word, which includes:
-            [chiWord, jyutping, toneNum, noteMelody, noteBeat, noteWidth, intMelody, intToneVal, intToneCode];
+            [chiWord, jyutping, toneNum, noteMelody, noteBeat, noteWidth, intMelody, intToneVal, intToneCode]
         list is ['ERR', cause] if there is some error with cause indicating the cause
     """
     global      Song_NoteFormat
@@ -241,8 +241,9 @@ def ParseSong ( inFilePath ) :
         inFilePath : full path of input file
     Output:
         (retCode, errStr) where
-            retCode : 0 for success, <0 for failure
-                        -1 for file format error
+            retCode : 0  for success, 
+                      <0 for failure
+                         -1 for file format error
             errStr  : a string describing the error
     """
     global      BeatsInBar
@@ -254,6 +255,7 @@ def ParseSong ( inFilePath ) :
     BeatsInBar = [0, 0]
     RemarkList = list()
     FirstWord  = True
+    InitDirectives()
 
     lineNum = 0
     patWord = '[\s]*([\S]+)[\s]+([\S]+)[\s]+([\S]+)[\s]+([\S]+)'        # len(m.groups())
@@ -332,8 +334,9 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
         browserPath : path to browser program
 
     Output:
-        (code, errStr) where code is
+        (code, statusStr) where code is
             0 for success; <0 for failure
+            statusStr : string for the status field in the GUI
     """
     global      ErrList
     global      Song_BeatsPerBar, Song_NoteFormat
@@ -404,6 +407,6 @@ def ProcessRequest ( inFilePath, songName, beatsPerBar, noteFormat, browserPath 
     # Close log file
     CloseLog()
     
-    return(0, "成功")
+    return(0, "輸出檔案已生成")
 # end def ProcessRequest()
 

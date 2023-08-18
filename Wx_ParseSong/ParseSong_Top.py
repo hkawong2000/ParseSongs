@@ -30,7 +30,7 @@ class MyFrame(wx.Frame):
     BrowserPath = '''C:/Program Files/Google/Chrome/Application/chrome.exe'''
     EditorPath  = '''C:/Windows/System32/notepad.exe'''
     #
-    VERSION_STRING = "Version 20230801"
+    VERSION_STRING = "Version 20230815"
 
     def __init__(self, *args, **kwds):
 
