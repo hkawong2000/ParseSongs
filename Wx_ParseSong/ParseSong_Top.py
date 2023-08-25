@@ -24,7 +24,8 @@ from ParseSongs_ProcessReq import *
 class MyFrame(wx.Frame):
 
     # Class variables
-    FilePath    = ''
+    FilePath     = ''
+    FileNameLast = ''
     #
 #x  BrowserPath = '''C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'''
     BrowserPath = '''C:/Program Files/Google/Chrome/Application/chrome.exe'''
@@ -33,9 +34,6 @@ class MyFrame(wx.Frame):
     VERSION_STRING = "Version 20230815"
 
     def __init__(self, *args, **kwds):
-
-        # Global Varaibles
-        FilePath = ''
         
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.CAPTION | wx.CLIP_CHILDREN | wx.CLOSE_BOX | wx.MINIMIZE_BOX | wx.SYSTEM_MENU
@@ -246,12 +244,12 @@ class MyFrame(wx.Frame):
             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
             )
         if dlg.ShowModal() == wx.ID_OK:
-            paths           = dlg.GetPaths()
-            self.FilePath   = re.sub('\\\\', '/', paths[0])
+            paths         = dlg.GetPaths()
+            self.FilePath = re.sub('\\\\', '/', paths[0])
             print('self.FilePath = ' + self.FilePath)
-            fileNameLastIdx = self.FilePath.rindex('/')
-            fileNameLast    = self.FilePath[(fileNameLastIdx+1):]
-            self.FileNameLabel.SetValue(fileNameLast)
+            fileNameLastIdx   = self.FilePath.rindex('/')
+            self.FileNameLast = self.FilePath[(fileNameLastIdx+1):]
+            self.FileNameLabel.SetValue(self.FileNameLast)
             self.StatusText.SetValue('(未執行)')
         # end if
         dlg.Destroy()
@@ -300,16 +298,20 @@ class MyFrame(wx.Frame):
             return
         # end if
 
-        if (1) :
-            try :
-                (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
-            except :
-                self.StatusText.SetValue('程式出現問題')
-            else :
-                self.StatusText.SetValue(errStr)
-            # end if
-        else :
+        try :
             (code, errStr) = ProcessRequest(self.FilePath, songNameVal, int(beatsPerBarVal), noteFormat, self.BrowserPath)
+        except :
+            self.StatusText.SetValue('程式出現問題')
+            dlg = wx.MessageDialog(None, '程式出現問題', "Info", wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+        else :
+            self.StatusText.SetValue(errStr)
+            if (code == 0) :
+                outFile  = re.sub('.txt', '.html', self.FileNameLast)
+                errStr  += '\n結果請查看 ' + outFile
+            # end if
+            dlg = wx.MessageDialog(None, errStr, "Info", wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
         # end if
 
         self.FilePath = ''

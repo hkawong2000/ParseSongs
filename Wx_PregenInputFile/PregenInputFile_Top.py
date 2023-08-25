@@ -148,7 +148,7 @@ class MyFrame(wx.Frame):
             wildcard="*.txt",
             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
             )
-        if dlg.ShowModal() == wx.ID_OK:
+        if (dlg.ShowModal() == wx.ID_OK) :
             paths           = dlg.GetPaths()
             self.FilePath   = re.sub('\\\\', '/', paths[0])
             print('self.FilePath = ' + self.FilePath)
@@ -181,6 +181,9 @@ class MyFrame(wx.Frame):
             #
             self.FileNameLabel.SetValue('')
             self.FileName = ''
+            #
+            dlg = wx.MessageDialog(None, successText, "Info", wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
         else :
             # showinfo(title = 'Info', message=errStr)
             StatusText['text'] = errStr
