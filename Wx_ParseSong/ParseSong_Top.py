@@ -32,6 +32,41 @@ class MyFrame(wx.Frame):
     EditorPath  = '''C:/Windows/System32/notepad.exe'''
     #
     VERSION_STRING = "Version 20230815"
+    ABOUT_STRING = """ParseSong: Tone-Melody Correspondence Checker
+Version 1.0
+
+Copyright © 2023 
+Start from the Beginning - Chinese Supporting Scheme for Non-Chinese Speaking Students in Kindergarten
+Hong Kong SAR, China
+
+--
+
+When mentioning ParseSong: Tone-Melody Correspondence Checker in a publication, please include the following information:
+
+URL: https://kgcsl.edu.hku.hk/software/
+Project: Start from the Beginning - Chinese Supporting Scheme for Non-Chinese Speaking Students in Kindergarten
+
+--
+
+CO-PRINCIPAL INVESTIGATORS: 
+Elizabeth K. Y. Loh
+Tikky S. P. To-Chan
+
+SOFTWARE DEVELOPMENT TEAM:
+Loretta C. W. Tam (PM)
+Anthony Y. W. Wong (Tech Lead)
+Moses W. W. Lau (UI/UX Designer)
+Fatima Hasna Hameed (QA)
+Jasmine K. K. Shum (Coordinator)
+Justine P. S. Woo (ECE Professional-Music)
+Regina L. M. Chow (ECE Professional-Curriculum & Liaison)
+
+SPECIAL THANKS TO:
+Women's Welfare Club Western District Hong Kong Kindergarten
+Yan Oi Tong Mrs Cheng Ting Kong Kindergarten
+Anonymous Reviewers
+Nissom Zhengliang Sun
+"""
 
     def __init__(self, *args, **kwds):
         
@@ -49,6 +84,8 @@ class MyFrame(wx.Frame):
         item = wxglade_tmp_menu.Append(wx.ID_ANY, u"文字編輯器路徑", "")
         self.Bind(wx.EVT_MENU, self.SelectEditorPath, item)
         wxglade_tmp_menu.AppendSeparator()
+        item = wxglade_tmp_menu.Append(wx.ID_ANY, u"關於 ParseSong", "")
+        self.Bind(wx.EVT_MENU, self.ShowAbout, item)
         item = wxglade_tmp_menu.Append(wx.ID_ANY, u"版本", "")
         self.Bind(wx.EVT_MENU, self.ShowVersion, item)
         self.frame_menubar.Append(wxglade_tmp_menu, u"設定")
@@ -229,6 +266,11 @@ class MyFrame(wx.Frame):
     # end def SelectEditorPath()
 
     
+    def ShowAbout(self, event):  # wxGlade: MyFrame.<event_handler>
+        wx.MessageBox(self.ABOUT_STRING, 'Info', wx.OK)
+    # end def ShowAbout()
+    
+
     def ShowVersion(self, event):  # wxGlade: MyFrame.<event_handler>
         outStrV = self.VERSION_STRING
         wx.MessageBox(outStrV, 'Info', wx.OK)
