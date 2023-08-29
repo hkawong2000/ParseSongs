@@ -16,7 +16,7 @@ from ParseSongs_ProcessReq import *
     BrowserPath = '''C:/Program Files/Google/Chrome/Application/chrome.exe'''
     EditorPath  = '''C:/Windows/System32/notepad.exe'''
     #
-    VERSION_STRING = "Version 20230815"
+    VERSION_STRING = "Version 20230829"
     ABOUT_STRING = """ParseSong: Tone-Melody Correspondence Checker
 Version 1.0
 
@@ -71,7 +71,6 @@ Nissom Zhengliang Sun
         dlg.Destroy()
     # end def SelectBrowserPath()
 
-
     def SelectEditorPath(self, event):  # wxGlade: MyFrame.<event_handler>
         dlg = wx.FileDialog(
             self, message="請選擇文字編輯器路徑",
@@ -87,17 +86,14 @@ Nissom Zhengliang Sun
         dlg.Destroy()
     # end def SelectEditorPath()
 
-
     def ShowAbout(self, event):  # wxGlade: MyFrame.<event_handler>
         wx.MessageBox(self.ABOUT_STRING, 'Info', wx.OK)
     # end def ShowAbout()
-
 
     def ShowVersion(self, event):  # wxGlade: MyFrame.<event_handler>
         outStrV = self.VERSION_STRING
         wx.MessageBox(outStrV, 'Info', wx.OK)
     # end def ShowVersion()
-
 
     def SelectFile(self, event):  # wxGlade: MyFrame.<event_handler>
         dlg = wx.FileDialog(
@@ -119,13 +115,11 @@ Nissom Zhengliang Sun
         dlg.Destroy()
     # end def SelectFile()
 
-
     def EditFile(self, event):  # wxGlade: MyFrame.<event_handler>
         sysCmd = '"' + self.EditorPath + '" ' + re.sub('/', '\\\\', self.FilePath) + ''
         print('sysCmd = ' + sysCmd)
         os.system(sysCmd)
     # end def EditFile()
-    
     
     def StartClicked(self, event):  # wxGlade: MyFrame.<event_handler>
         songNameVal    = self.SongNameEntry.GetValue()
