@@ -1,4 +1,3 @@
-import wx
 import re
 import os
 import sys
@@ -11,7 +10,7 @@ from Pregen_InputFile import *
     # Class variables
     FilePath       = ''
     InFileName     = ''
-    VERSION_STRING = "Version 20230707"
+    VERSION_STRING = "Version 20230829"
     
     # Related to expert mode
     AllowExpert = 1             # expert mode allowed
@@ -25,7 +24,6 @@ from Pregen_InputFile import *
         wx.MessageBox(outStrV, 'Info', wx.OK)
     # end def ShowVersion()
 
-
     def SelectFile(self, event):  # wxGlade: MyFrame.<event_handler>
         dlg = wx.FileDialog(
             self, message="請選擇歌曲文字檔",
@@ -34,7 +32,7 @@ from Pregen_InputFile import *
             wildcard="*.txt",
             style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_CHANGE_DIR
             )
-        if (dlg.ShowModal() == wx.ID_OK) :
+        if dlg.ShowModal() == wx.ID_OK:
             paths           = dlg.GetPaths()
             self.FilePath   = re.sub('\\\\', '/', paths[0])
             print('self.FilePath = ' + self.FilePath)
@@ -45,7 +43,6 @@ from Pregen_InputFile import *
         # end if
         dlg.Destroy()
     # end def SelectFile()
-
 
     def StartProcess(self, event):  # wxGlade: MyFrame.<event_handler>
         if (self.FilePath == '') :
@@ -61,27 +58,24 @@ from Pregen_InputFile import *
         if (code == 0) :
             # showinfo(title = 'Info', message='Success')
             outFile     = re.sub('.txt', '_input.txt', self.InFileName)
-            noteFile    = re.sub('.txt', '_notes.txt', self.InFileName)
+            noteFile    = re.sub('.txt', '_Notes.txt', self.InFileName)
             successText = '成功 !\n結果在 : ' + outFile + '\n附注在 : ' + noteFile
             self.StatusText.SetValue(successText)
-            #
             self.FileNameLabel.SetValue('')
-            self.FileName = ''
-            #
             dlg = wx.MessageDialog(None, successText, "Info", wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
         else :
             # showinfo(title = 'Info', message=errStr)
             StatusText['text'] = errStr
+            dlg = wx.MessageDialog(None, errStr, "Info", wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
         # end if
     # end def StartProcess()
-
 
     def ModeSelect(self, event):  # wxGlade: MyFrame.<event_handler>
         print("Event handler 'ModeSelect' not implemented!")
         event.Skip()
     # end def ModeSelect()
-
 
     def SelectJyutping(self, event):  # wxGlade: MyFrame.<event_handler>
         print("Event handler 'SelectJyutping' not implemented!")
